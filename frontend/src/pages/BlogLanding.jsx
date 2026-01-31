@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
+import { translateContent } from '../lib/lingo';
 import { useState, useEffect } from 'react';
 import { useLingo, useLingoLocale, setLingoLocale } from "lingo.dev/react/client";
 import { Globe, PenTool, BookOpen, LogIn, LogOut, User } from 'lucide-react';
@@ -33,7 +34,9 @@ export default function BlogLanding() {
         if (error) {
             console.error('Error fetching posts:', error);
         } else {
+            console.log("Fetched posts:", data);
             setPosts(data);
+            setTranslatedPosts(data); // Initialize with original data
         }
         setLoading(false);
     };
@@ -45,6 +48,49 @@ export default function BlogLanding() {
             navigate('/editor');
         }
     };
+
+    // Translation Logic
+    const [translatedPosts, setTranslatedPosts] = useState([]);
+    useEffect(() => {
+        const translateAllPosts = async () => {
+            if (posts.length === 0) return;
+
+            // If target matches source or default, arguably we could skip, 
+            // but we need to check per post because each post might have a different base_lang.
+            // Actually, we can just map through everything.
+
+            const newTranslatedPosts = await Promise.all(
+                posts.map(async (post) => {
+                    // Optimization: if lang matches, return original
+                    if (post.base_lang === locale) return post;
+
+                    // Otherwise translate title and content
+                    // We can batch this if the SDK supports it, but for now we do individual
+                    // or we reuse the `translateContent` helper which takes an object.
+
+                    try {
+                        // Translate title
+                        const translatedTitle = await translateContent(post.title, post.base_lang, locale);
+                        // Translate content (preview) - maybe only translate first X characters for performance?
+                        // For now, translate whole content to be safe and accurate.
+                        const translatedContent = await translateContent(post.content, post.base_lang, locale);
+
+                        return {
+                            ...post,
+                            title: translatedTitle,
+                            content: translatedContent
+                        };
+                    } catch (err) {
+                        console.error("Translation failed for post", post.id, err);
+                        return post; // Fallback to original
+                    }
+                })
+            );
+            setTranslatedPosts(newTranslatedPosts);
+        };
+
+        translateAllPosts();
+    }, [posts, locale]);
 
     return (
         <div className="min-h-screen bg-[#0f172a] text-[#f8fafc] font-sans">
@@ -135,8 +181,8 @@ export default function BlogLanding() {
                             <div className="w-12 h-12 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
                             <p className="text-[#94a3b8] animate-pulse">{t("ui.loading")}</p>
                         </div>
-                    ) : posts.length > 0 ? (
-                        posts.map(post => (
+                    ) : translatedPosts.length > 0 ? (
+                        translatedPosts.map(post => (
                             <article
                                 key={post.id}
                                 className="group bg-[#1e293b] p-8 rounded-2xl cursor-pointer transition-all hover:-translate-y-2 border border-[#334155] hover:border-indigo-500/50 hover:shadow-[0_20px_40px_rgba(0,0,0,0.3)]"
