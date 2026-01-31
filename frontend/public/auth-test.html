@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Auth Test Page</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #0f172a;
+            color: #f8fafc;
+        }
+        .test-section {
+            background: #1e293b;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 12px;
+            border: 1px solid #334155;
+        }
+        button {
+            background: #4f46e5;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+        }
+        button:hover {
+            background: #4338ca;
+        }
+        input {
+            background: #0f172a;
+            border: 1px solid #334155;
+            color: white;
+            padding: 10px;
+            border-radius: 8px;
+            width: 100%;
+            margin: 5px 0;
+        }
+        .success {
+            color: #10b981;
+            font-weight: bold;
+        }
+        .error {
+            color: #ef4444;
+            font-weight: bold;
+        }
+        .result {
+            background: #0f172a;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 10px 0;
+            font-family: monospace;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <h1>🔐 Authentication Test Page</h1>
+    <p>Use this page to test if your Supabase authentication is working correctly.</p>
+
+    <div class="test-section">
+        <h2>1. Test Connection</h2>
+        <button onclick="testConnection()">Test Supabase Connection</button>
+        <div id="connection-result" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>2. Sign Up</h2>
+        <input type="email" id="signup-email" placeholder="Email" value="test@example.com">
+        <input type="password" id="signup-password" placeholder="Password" value="TestPass123!">
+        <button onclick="testSignUp()">Sign Up</button>
+        <div id="signup-result" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>3. Sign In</h2>
+        <input type="email" id="signin-email" placeholder="Email" value="test@example.com">
+        <input type="password" id="signin-password" placeholder="Password" value="TestPass123!">
+        <button onclick="testSignIn()">Sign In</button>
+        <div id="signin-result" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>4. Check Current User</h2>
+        <button onclick="checkUser()">Check User</button>
+        <div id="user-result" class="result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>5. Sign Out</h2>
+        <button onclick="testSignOut()">Sign Out</button>
+        <div id="signout-result" class="result"></div>
+    </div>
+
+    <script type="module">
+        import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm';
+
+        const supabaseUrl = 'https://snilqhgdzftpbqnayhmk.supabase.co';
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNuaWxxaGdkemZ0cGJxbmF5aG1rIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk3ODE0NDcsImV4cCI6MjA4NTM1NzQ0N30.6rDidW3OX18jlh6HewA_hgGd1uOTh3PQgpXumy0C4Ok';
+        
+        window.supabase = createClient(supabaseUrl, supabaseKey);
+
+        window.testConnection = async function() {
+            const result = document.getElementById('connection-result');
+            result.innerHTML = 'Testing...';
+            try {
+                const { data, error } = await window.supabase.auth.getSession();
+                if (error) throw error;
+                result.innerHTML = `<span class="success">✅ Connected to Supabase!</span><br>Session: ${data.session ? 'Active' : 'None'}`;
+            } catch (error) {
+                result.innerHTML = `<span class="error">❌ Error: ${error.message}</span>`;
+            }
+        };
+
+        window.testSignUp = async function() {
+            const email = document.getElementById('signup-email').value;
+            const password = document.getElementById('signup-password').value;
+            const result = document.getElementById('signup-result');
+            result.innerHTML = 'Signing up...';
+            
+            try {
+                const { data, error } = await window.supabase.auth.signUp({ email, password });
+                if (error) throw error;
+                result.innerHTML = `<span class="success">✅ Sign up successful!</span><br>User ID: ${data.user?.id}<br>Email: ${data.user?.email}`;
+            } catch (error) {
+                result.innerHTML = `<span class="error">❌ Error: ${error.message}</span>`;
+            }
+        };
+
+        window.testSignIn = async function() {
+            const email = document.getElementById('signin-email').value;
+            const password = document.getElementById('signin-password').value;
+            const result = document.getElementById('signin-result');
+            result.innerHTML = 'Signing in...';
+            
+            try {
+                const { data, error } = await window.supabase.auth.signInWithPassword({ email, password });
+                if (error) throw error;
+                result.innerHTML = `<span class="success">✅ Sign in successful!</span><br>User ID: ${data.user?.id}<br>Email: ${data.user?.email}`;
+            } catch (error) {
+                result.innerHTML = `<span class="error">❌ Error: ${error.message}</span>`;
+            }
+        };
+
+        window.checkUser = async function() {
+            const result = document.getElementById('user-result');
+            result.innerHTML = 'Checking...';
+            
+            try {
+                const { data, error } = await window.supabase.auth.getUser();
+                if (error) throw error;
+                if (data.user) {
+                    result.innerHTML = `<span class="success">✅ User logged in!</span><br>ID: ${data.user.id}<br>Email: ${data.user.email}`;
+                } else {
+                    result.innerHTML = '<span class="error">❌ No user logged in</span>';
+                }
+            } catch (error) {
+                result.innerHTML = `<span class="error">❌ Error: ${error.message}</span>`;
+            }
+        };
+
+        window.testSignOut = async function() {
+            const result = document.getElementById('signout-result');
+            result.innerHTML = 'Signing out...';
+            
+            try {
+                const { error } = await window.supabase.auth.signOut();
+                if (error) throw error;
+                result.innerHTML = '<span class="success">✅ Signed out successfully!</span>';
+            } catch (error) {
+                result.innerHTML = `<span class="error">❌ Error: ${error.message}</span>`;
+            }
+        };
+
+        // Auto-test connection on load
+        window.addEventListener('load', () => {
+            setTimeout(testConnection, 500);
+        });
+    </script>
+</body>
+</html>

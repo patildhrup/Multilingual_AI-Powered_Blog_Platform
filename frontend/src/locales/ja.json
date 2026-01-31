@@ -1,0 +1,16 @@
+{
+    "nav.write": "ストーリーを書く",
+    "hero.title": "一度書けば、どの言語でも読める。",
+    "hero.subtitle": "AI駆動のリアルタイム翻訳と多言語フィードバックを通じて、世界中の読者とつながりましょう。",
+    "ui.loading": "ストーリーを探しています...",
+    "ui.empty": "世界はあなたのストーリーを待っています。",
+    "ui.createFirst": "書き始める",
+    "post.readMore": "ストーリーをすべて読む",
+    "footer.text": "Lingo Hackathonのために構築 • AIを活用",
+    "editor.back": "フィードに戻る",
+    "editor.publish": "ストーリーを公開",
+    "editor.publishing": "公開中...",
+    "editor.titlePlaceholder": "タイトル...",
+    "editor.contentPlaceholder": "あなたのストーリーを教えてください...",
+    "ai.feedbackTitle": "AI読者インサイト"
+}

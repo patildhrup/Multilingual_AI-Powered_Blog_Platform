@@ -1,9 +1,13 @@
 {
-  "version": "1.11",
+  "$schema": "https://lingo.dev/schema/i18n.json",
+  "version": "1.10",
   "locale": {
     "source": "en",
     "targets": [
-      "es"
+      "es",
+      "hi",
+      "ja",
+      "fr"
     ]
   },
   "buckets": {
@@ -13,5 +17,10 @@
       ]
     }
   },
-  "$schema": "https://lingo.dev/schema/i18n.json"
+  "provider": {
+    "id": "ollama",
+    "model": "gemma3",
+    "baseUrl": "http://localhost:11434",
+    "prompt": "Translate the provided text from {source} to {target}."
+  }
 }
