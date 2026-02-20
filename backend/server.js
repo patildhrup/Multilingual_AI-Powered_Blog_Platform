@@ -2,7 +2,8 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import { LingoDotDevEngine } from 'lingo.dev/sdk';
-import { ChatXAI } from '@langchain/xai';
+import { ChatOpenAI } from '@langchain/openai';
+import { SystemMessage, HumanMessage, AIMessage } from '@langchain/core/messages';
 
 dotenv.config();
 
@@ -16,8 +17,8 @@ app.use(express.json());
 // Initialize Lingo SDK
 const apiKey = process.env.LINGO_API_KEY || process.env.LINGODOTDEV_API_KEY;
 
-// Initialize xAI/Grok
-const xaiApiKey = process.env.XAI_API_KEY;
+// Initialize OpenRouter
+const openRouterApiKey = process.env.OPENROUTE_API_KEY;
 
 if (!apiKey) {
     console.error('⚠️  L INGO_API_KEY not found in .env file');
@@ -77,17 +78,20 @@ app.post('/api/chat', async (req, res) => {
     try {
         const { message, locale, history } = req.body;
 
-        if (!message) {
-            return res.status(400).json({ error: 'Message is required' });
+        if (!openRouterApiKey) {
+            return res.status(500).json({ error: 'Chat service not configured. Set OPENROUTE_API_KEY in .env' });
         }
 
-        if (!xaiApiKey) {
-            return res.status(500).json({ error: 'Chat service not configured. Set XAI_API_KEY in .env' });
-        }
-
-        const model = new ChatXAI({
-            apiKey: xaiApiKey,
-            model: 'grok-3-mini',
+        const model = new ChatOpenAI({
+            apiKey: openRouterApiKey,
+            model: 'google/gemini-2.0-flash-001',
+            configuration: {
+                baseURL: 'https://openrouter.ai/api/v1',
+                defaultHeaders: {
+                    'HTTP-Referer': 'http://localhost:3000', // Optional, for OpenRouter rankings
+                    'X-Title': 'Blogy AI Assistant', // Optional, for OpenRouter rankings
+                }
+            },
             temperature: 0.7,
         });
 
@@ -97,9 +101,11 @@ app.post('/api/chat', async (req, res) => {
         }[locale] || 'English';
 
         const messages = [
-            ['system', `You are a helpful AI writing assistant for a multilingual blog platform called Blogy. Help users with writing, editing, translation questions, SEO tips, and content creation. Respond in ${langName}. Keep responses concise, friendly, and helpful. Use markdown sparingly.`],
-            ...(history || []).map(m => [m.role === 'user' ? 'human' : 'assistant', m.content]),
-            ['human', message]
+            new SystemMessage(`You are a helpful AI writing assistant for a multilingual blog platform called Blogy. Respond in ${langName}. Keep responses concise.`),
+            ...(history || []).map(m =>
+                m.role === 'user' ? new HumanMessage(m.content) : new AIMessage(m.content)
+            ),
+            new HumanMessage(message)
         ];
 
         const response = await model.invoke(messages);
@@ -109,7 +115,8 @@ app.post('/api/chat', async (req, res) => {
         console.error('Chat error:', error);
         res.status(500).json({
             error: 'Chat failed',
-            message: error.message
+            message: error.message,
+            stack: error.stack
         });
     }
 });
@@ -120,7 +127,7 @@ app.get('/health', (req, res) => {
         status: 'ok',
         service: 'Translation Backend',
         apiKeyConfigured: !!apiKey,
-        chatConfigured: !!xaiApiKey
+        chatConfigured: !!openRouterApiKey
     });
 });
 

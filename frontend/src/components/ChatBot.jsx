@@ -81,7 +81,7 @@ export default function ChatBot() {
                                 </div>
                                 <div>
                                     <p className="text-sm font-bold text-[#f8fafc]">Blogy AI</p>
-                                    <p className="text-[10px] text-indigo-400 font-medium">Powered by Grok</p>
+                                    <p className="text-[10px] text-indigo-400 font-medium">Powered by OpenRouter</p>
                                 </div>
                             </div>
                             <button
@@ -110,21 +110,19 @@ export default function ChatBot() {
                                     key={i}
                                     className={`flex gap-2.5 ${msg.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}
                                 >
-                                    <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${
-                                        msg.role === 'user'
-                                            ? 'bg-indigo-600'
-                                            : 'bg-gradient-to-br from-indigo-500 to-purple-600'
-                                    }`}>
+                                    <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${msg.role === 'user'
+                                        ? 'bg-indigo-600'
+                                        : 'bg-gradient-to-br from-indigo-500 to-purple-600'
+                                        }`}>
                                         {msg.role === 'user'
                                             ? <User size={13} className="text-white" />
                                             : <Bot size={13} className="text-white" />
                                         }
                                     </div>
-                                    <div className={`max-w-[80%] px-3.5 py-2.5 rounded-2xl text-sm leading-relaxed ${
-                                        msg.role === 'user'
-                                            ? 'bg-indigo-600 text-white rounded-tr-md'
-                                            : 'bg-[#1e293b] text-[#e2e8f0] border border-[#334155] rounded-tl-md'
-                                    }`}>
+                                    <div className={`max-w-[80%] px-3.5 py-2.5 rounded-2xl text-sm leading-relaxed ${msg.role === 'user'
+                                        ? 'bg-indigo-600 text-white rounded-tr-md'
+                                        : 'bg-[#1e293b] text-[#e2e8f0] border border-[#334155] rounded-tl-md'
+                                        }`}>
                                         {msg.content}
                                     </div>
                                 </div>
@@ -172,11 +170,10 @@ export default function ChatBot() {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => setOpen(!open)}
-                className={`w-14 h-14 rounded-full flex items-center justify-center shadow-xl transition-all ${
-                    open
-                        ? 'bg-[#1e293b] border border-[#334155] text-[#94a3b8] hover:text-white'
-                        : 'bg-gradient-to-br from-indigo-600 to-purple-600 text-white shadow-indigo-500/30 hover:shadow-indigo-500/50'
-                }`}
+                className={`w-14 h-14 rounded-full flex items-center justify-center shadow-xl transition-all ${open
+                    ? 'bg-[#1e293b] border border-[#334155] text-[#94a3b8] hover:text-white'
+                    : 'bg-gradient-to-br from-indigo-600 to-purple-600 text-white shadow-indigo-500/30 hover:shadow-indigo-500/50'
+                    }`}
             >
                 {open ? <X size={22} /> : <MessageSquare size={22} />}
             </motion.button>
