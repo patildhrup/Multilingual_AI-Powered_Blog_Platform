@@ -11,11 +11,31 @@ const callTranslateAPI = async (content, sourceLang, targetLang) => {
     return translatedContent;
 };
 
+const callGenerateAPI = async (topic, locale) => {
+    const response = await fetch(`${BACKEND_URL}/api/generate-blog`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ topic, locale })
+    });
+    if (!response.ok) throw new Error('AI Generation failed');
+    return await response.json();
+};
+
+export const generateAllBlogContent = async (topic, lang = 'en') => {
+    if (!topic || topic.trim().length < 5) return null;
+    try {
+        return await callGenerateAPI(topic, lang);
+    } catch (error) {
+        console.error('AI Full Generation failed:', error);
+        return null;
+    }
+};
+
 export const generateTitle = async (content, lang = 'en') => {
     if (!content || content.trim().length < 10) return '';
     try {
-        const prompt = `Generate a compelling blog title for the following content. Return ONLY the title, nothing else:\n\n${content.slice(0, 500)}`;
-        return await callTranslateAPI(prompt, 'en', lang);
+        const result = await callGenerateAPI(content, lang);
+        return result.title || '';
     } catch (error) {
         console.error('Title generation failed:', error);
         return '';
@@ -25,8 +45,8 @@ export const generateTitle = async (content, lang = 'en') => {
 export const generateSEODescription = async (content, lang = 'en') => {
     if (!content || content.trim().length < 10) return '';
     try {
-        const prompt = `Write a concise SEO meta description (max 160 characters) for the following blog content. Return ONLY the description:\n\n${content.slice(0, 500)}`;
-        return await callTranslateAPI(prompt, 'en', lang);
+        const result = await callGenerateAPI(content, lang);
+        return result.description || '';
     } catch (error) {
         console.error('SEO generation failed:', error);
         return '';
@@ -36,8 +56,8 @@ export const generateSEODescription = async (content, lang = 'en') => {
 export const generateHashtags = async (content, lang = 'en') => {
     if (!content || content.trim().length < 10) return '';
     try {
-        const prompt = `Generate 5-8 relevant hashtags for the following blog content. Return ONLY the hashtags separated by spaces:\n\n${content.slice(0, 500)}`;
-        return await callTranslateAPI(prompt, 'en', lang);
+        const result = await callGenerateAPI(content, lang);
+        return (result.hashtags || []).join(' ') || '';
     } catch (error) {
         console.error('Hashtag generation failed:', error);
         return '';
@@ -47,8 +67,8 @@ export const generateHashtags = async (content, lang = 'en') => {
 export const generateSummary = async (content, lang = 'en') => {
     if (!content || content.trim().length < 10) return '';
     try {
-        const prompt = `Write a brief 2-3 sentence summary of the following blog content. Return ONLY the summary:\n\n${content.slice(0, 1000)}`;
-        return await callTranslateAPI(prompt, 'en', lang);
+        const result = await callGenerateAPI(content, lang);
+        return result.summary || '';
     } catch (error) {
         console.error('Summary generation failed:', error);
         return '';
@@ -58,8 +78,14 @@ export const generateSummary = async (content, lang = 'en') => {
 export const improveWriting = async (content, lang = 'en') => {
     if (!content || content.trim().length < 10) return content;
     try {
-        const prompt = `Improve the following paragraph for clarity, grammar, and engagement. Return ONLY the improved paragraph:\n\n${content}`;
-        return await callTranslateAPI(prompt, 'en', lang);
+        const response = await fetch(`${BACKEND_URL}/api/improve-writing`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ content, locale: lang })
+        });
+        if (!response.ok) throw new Error('AI Improvement failed');
+        const { improvedContent } = await response.json();
+        return improvedContent;
     } catch (error) {
         console.error('Writing improvement failed:', error);
         return content;
@@ -69,8 +95,15 @@ export const improveWriting = async (content, lang = 'en') => {
 export const switchTone = async (content, tone, lang = 'en') => {
     if (!content || content.trim().length < 10) return content;
     try {
-        const prompt = `Rewrite the following text in a ${tone} tone. Return ONLY the rewritten text:\n\n${content}`;
-        return await callTranslateAPI(prompt, 'en', lang);
+        const prompt = `Rewrite the following text in a ${tone} tone. Keep it in ${lang}.:\n\n${content}`;
+        const response = await fetch(`${BACKEND_URL}/api/improve-writing`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ content: prompt, locale: lang })
+        });
+        if (!response.ok) throw new Error('Tone switch failed');
+        const { improvedContent } = await response.json();
+        return improvedContent;
     } catch (error) {
         console.error('Tone switch failed:', error);
         return content;

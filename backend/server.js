@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 import { LingoDotDevEngine } from 'lingo.dev/sdk';
 import { ChatOpenAI } from '@langchain/openai';
 import { SystemMessage, HumanMessage, AIMessage } from '@langchain/core/messages';
+import { generateBlogContent, improveContent } from './services/aiWriter.js';
 
 dotenv.config();
 
@@ -117,6 +118,58 @@ app.post('/api/chat', async (req, res) => {
             error: 'Chat failed',
             message: error.message,
             stack: error.stack
+        });
+    }
+});
+
+app.post('/api/generate-blog', async (req, res) => {
+    try {
+        const { topic, locale } = req.body;
+        console.log('Blog generation request:', { topic, locale });
+
+        if (!openRouterApiKey) {
+            return res.status(500).json({ error: 'AI Writing Assistant not configured. Set OPENROUTE_API_KEY in .env' });
+        }
+
+        const langName = {
+            en: 'English', hi: 'Hindi', ar: 'Arabic',
+            fr: 'French', de: 'German', zh: 'Chinese'
+        }[locale] || 'English';
+
+        const result = await generateBlogContent(topic, langName);
+        res.json(result);
+
+    } catch (error) {
+        console.error('AI Generation error:', error);
+        res.status(500).json({
+            error: 'AI Generation failed',
+            message: error.message
+        });
+    }
+});
+
+app.post('/api/improve-writing', async (req, res) => {
+    try {
+        const { content, locale } = req.body;
+        console.log('Writing improvement request:', { locale });
+
+        if (!openRouterApiKey) {
+            return res.status(500).json({ error: 'AI Writing Assistant not configured. Set OPENROUTE_API_KEY in .env' });
+        }
+
+        const langName = {
+            en: 'English', hi: 'Hindi', ar: 'Arabic',
+            fr: 'French', de: 'German', zh: 'Chinese'
+        }[locale] || 'English';
+
+        const result = await improveContent(content, langName);
+        res.json({ improvedContent: result });
+
+    } catch (error) {
+        console.error('AI Improvement error:', error);
+        res.status(500).json({
+            error: 'AI Improvement failed',
+            message: error.message
         });
     }
 });

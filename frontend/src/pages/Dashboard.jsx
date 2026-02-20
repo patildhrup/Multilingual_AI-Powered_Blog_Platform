@@ -7,7 +7,7 @@ import { LANGUAGES } from '../lingo/dictionary';
 import { translateContent } from '../lib/lingo';
 import {
     generateTitle, generateSEODescription, generateHashtags,
-    generateSummary, improveWriting
+    generateSummary, improveWriting, generateAllBlogContent
 } from '../lib/ai';
 import {
     BookOpen, PenTool, LogOut, User, Send, Globe, Sparkles,
@@ -189,32 +189,33 @@ export default function Dashboard() {
         setSummarizing(false);
     };
 
-    const handleAI = async (type, toneOverride) => {
+    const handleAI = async (type) => {
         setAiLoading(prev => ({ ...prev, [type]: true }));
-        let result = '';
         try {
-            switch (type) {
-                case 'title':
-                    result = await generateTitle(content, baseLang);
-                    if (result) setTitle(result);
-                    break;
-                case 'seo':
-                    result = await generateSEODescription(content, baseLang);
-                    break;
-                case 'hashtags':
-                    result = await generateHashtags(content, baseLang);
-                    break;
-                case 'summary':
-                    result = await generateSummary(content, baseLang);
-                    break;
-                case 'improve':
-                    result = await improveWriting(content, baseLang);
-                    if (result) setContent(result);
-                    break;
-                default:
-                    break;
+            // Use the topic (title) or first part of content as context
+            const topic = title || content.slice(0, 200);
+
+            if (type === 'improve') {
+                const improved = await improveWriting(content, baseLang);
+                if (improved) setContent(improved);
+            } else {
+                // To save API tokens and provide better UX, we fetch all SEO data at once
+                // since the new backend endpoint returns it all together.
+                const result = await generateAllBlogContent(topic, baseLang);
+
+                if (result) {
+                    setAiResults(prev => ({
+                        ...prev,
+                        title: result.title,
+                        seo: result.description,
+                        hashtags: (result.hashtags || []).join(' '),
+                        summary: result.summary
+                    }));
+
+                    // Specifically for 'title', we also update the main title field
+                    if (type === 'title') setTitle(result.title);
+                }
             }
-            setAiResults(prev => ({ ...prev, [type]: result }));
         } catch (err) {
             console.error(`AI ${type} failed:`, err);
         }
