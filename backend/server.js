@@ -4,7 +4,7 @@ import dotenv from 'dotenv';
 import { LingoDotDevEngine } from 'lingo.dev/sdk';
 import { ChatOpenAI } from '@langchain/openai';
 import { SystemMessage, HumanMessage, AIMessage } from '@langchain/core/messages';
-import { generateBlogContent, improveContent } from './services/aiWriter.js';
+import { generateBlogContent, improveContent, summarizeComments } from './services/aiWriter.js';
 
 dotenv.config();
 
@@ -169,6 +169,32 @@ app.post('/api/improve-writing', async (req, res) => {
         console.error('AI Improvement error:', error);
         res.status(500).json({
             error: 'AI Improvement failed',
+            message: error.message
+        });
+    }
+});
+
+app.post('/api/summarize-comments', async (req, res) => {
+    try {
+        const { comments, locale } = req.body;
+        console.log('Comments summarization request:', { locale, commentCount: comments?.length });
+
+        if (!openRouterApiKey) {
+            return res.status(500).json({ error: 'AI Writing Assistant not configured. Set OPENROUTE_API_KEY in .env' });
+        }
+
+        const langName = {
+            en: 'English', hi: 'Hindi', ar: 'Arabic',
+            fr: 'French', de: 'German', zh: 'Chinese', ja: 'Japanese', es: 'Spanish'
+        }[locale] || 'English';
+
+        const result = await summarizeComments(comments, langName);
+        res.json({ summary: result });
+
+    } catch (error) {
+        console.error('AI Summarization error:', error);
+        res.status(500).json({
+            error: 'AI Summarization failed',
             message: error.message
         });
     }

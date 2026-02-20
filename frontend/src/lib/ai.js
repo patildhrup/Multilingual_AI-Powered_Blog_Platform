@@ -109,3 +109,20 @@ export const switchTone = async (content, tone, lang = 'en') => {
         return content;
     }
 };
+
+export const summarizeComments = async (comments, lang = 'en') => {
+    if (!comments || comments.length === 0) return '';
+    try {
+        const response = await fetch(`${BACKEND_URL}/api/summarize-comments`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ comments, locale: lang })
+        });
+        if (!response.ok) throw new Error('Comment summarization failed');
+        const { summary } = await response.json();
+        return summary;
+    } catch (error) {
+        console.error('Comment summarization failed:', error);
+        return '';
+    }
+};

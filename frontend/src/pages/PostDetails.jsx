@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useLingo, useLingoLocale, setLingoLocale } from "lingo.dev/react/client";
-import { translateContent, summarizeFeedback } from '../lib/lingo';
+import { translateContent } from '../lib/lingo';
+import { generateSummary, summarizeComments } from '../lib/ai';
 import { useAuth } from '../context/AuthContext';
 import AuthModal from '../components/AuthModal';
 import { ArrowLeft, MessageSquare, Sparkles, User, Send, Globe, LogIn, LogOut } from 'lucide-react';
@@ -26,7 +27,9 @@ export default function PostDetails() {
     const [loading, setLoading] = useState(true);
     const [translating, setTranslating] = useState(false);
     const [feedbackSummary, setFeedbackSummary] = useState('');
+    const [postSummary, setPostSummary] = useState('');
     const [summarizing, setSummarizing] = useState(false);
+    const [summarizingPost, setSummarizingPost] = useState(false);
 
 
     const t = (key) => {
@@ -117,11 +120,19 @@ export default function PostDetails() {
         }
     };
 
-    const handleSummarize = async () => {
+    const handleSummarizeFeedback = async () => {
         setSummarizing(true);
-        const summary = await summarizeFeedback(comments, currentLocale);
+        const summary = await summarizeComments(comments, currentLocale);
         setFeedbackSummary(summary);
         setSummarizing(false);
+    };
+
+    const handleSummarizePost = async () => {
+        if (!post) return;
+        setSummarizingPost(true);
+        const summary = await generateSummary(post.content, currentLocale);
+        setPostSummary(summary);
+        setSummarizingPost(false);
     };
 
     if (loading) return <div className="min-h-screen bg-[#0f172a] flex items-center justify-center text-white">Loading...</div>;
@@ -199,6 +210,38 @@ export default function PostDetails() {
                     <p className="text-xl md:text-2xl leading-relaxed text-[#cbd5e1] whitespace-pre-wrap">
                         {translatedPost.content}
                     </p>
+
+                    {/* AI Post Summary Section */}
+                    <div className="mt-12 p-6 rounded-2xl bg-white/5 border border-white/10">
+                        <div className="flex items-center justify-between mb-4">
+                            <h4 className="text-lg font-bold flex items-center gap-2">
+                                <Sparkles className="text-indigo-400" size={18} />
+                                AI Post Summary
+                            </h4>
+                            <button
+                                onClick={handleSummarizePost}
+                                disabled={summarizingPost}
+                                className="text-sm font-bold text-indigo-400 hover:text-indigo-300 transition-colors"
+                            >
+                                {summarizingPost ? 'Summarizing...' : 'Generate Summary'}
+                            </button>
+                        </div>
+                        <AnimatePresence>
+                            {postSummary ? (
+                                <motion.p
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    className="text-[#94a3b8] italic leading-relaxed"
+                                >
+                                    {postSummary}
+                                </motion.p>
+                            ) : (
+                                <p className="text-[#475569] text-sm italic">
+                                    Click generate for an AI-powered overview of this post.
+                                </p>
+                            )}
+                        </AnimatePresence>
+                    </div>
                 </article>
 
                 {/* AI Feedback Section */}
@@ -213,7 +256,7 @@ export default function PostDetails() {
                             {t("ai.feedbackTitle")}
                         </h3>
                         <button
-                            onClick={handleSummarize}
+                            onClick={handleSummarizeFeedback}
                             disabled={summarizing || comments.length === 0}
                             className="bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white px-6 py-2 rounded-xl font-bold flex items-center gap-2 transition-all"
                         >

@@ -60,3 +60,19 @@ export async function improveContent(content, language = "English") {
     const response = await model.invoke(prompt);
     return response.content;
 }
+
+export async function summarizeComments(comments, language = "English") {
+    const commentTexts = comments.map(c => c.comment_text).join('\n');
+    const prompt = `
+  You are an expert community manager. Summarize the following reader feedback from a blog post in ${language}.
+  Focus on the overall sentiment, common themes, and any specific suggestions or questions mentioned by readers.
+  Keep the summary concise and professional (max 100 words).
+  Return ONLY the summary, no preamble.
+
+  Comments:
+  ${commentTexts}
+  `;
+
+    const response = await model.invoke(prompt);
+    return response.content;
+}
