@@ -12,7 +12,8 @@ import {
 import {
     BookOpen, PenTool, LogOut, User, Send, Globe, Sparkles,
     MessageSquare, ChevronLeft, ChevronRight, Plus, FileText,
-    List, Hash, AlignLeft, Type, Loader2, Wand2, RefreshCw
+    List, Hash, AlignLeft, Type, Loader2, Wand2, RefreshCw,
+    Edit2, Trash2, Mic, Square, Play, Volume2
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -40,6 +41,11 @@ export default function Dashboard() {
     const [aiLoading, setAiLoading] = useState({});
     const [aiResults, setAiResults] = useState({});
 
+    // Management & Voice State
+    const [isEditing, setIsEditing] = useState(false);
+    const [editingPostId, setEditingPostId] = useState(null);
+    const [speakingPostId, setSpeakingPostId] = useState(null);
+
     const t = (key) => dictionary?.[key] || key;
 
     useEffect(() => {
@@ -64,18 +70,85 @@ export default function Dashboard() {
         e.preventDefault();
         if (!title || !content) return;
         setPublishing(true);
-        const { data, error } = await supabase
-            .from('posts')
-            .insert([{ title, content, base_lang: baseLang, user_id: user.id, metadata: {} }])
-            .select();
-        if (!error && data) {
+
+        const postData = {
+            title,
+            content,
+            base_lang: baseLang,
+            user_id: user.id,
+            metadata: {}
+        };
+
+        let result;
+        if (isEditing && editingPostId) {
+            result = await supabase
+                .from('posts')
+                .update(postData)
+                .eq('id', editingPostId)
+                .select();
+        } else {
+            result = await supabase
+                .from('posts')
+                .insert([postData])
+                .select();
+        }
+
+        if (!result.error && result.data) {
             setTitle('');
             setContent('');
             setAiResults({});
+            setIsEditing(false);
+            setEditingPostId(null);
             fetchPosts();
             setActiveView('posts');
+        } else {
+            console.error('Publishing failed:', result.error);
         }
         setPublishing(false);
+    };
+
+    const handleDelete = async (postId) => {
+        if (!window.confirm(t("ui.confirmDelete") || "Are you sure you want to delete this post?")) return;
+        const { error } = await supabase
+            .from('posts')
+            .delete()
+            .eq('id', postId);
+
+        if (!error) {
+            setPosts(posts.filter(p => p.id !== postId));
+            if (selectedPost?.id === postId) {
+                setActiveView('posts');
+                setSelectedPost(null);
+            }
+        } else {
+            console.error('Delete failed:', error);
+        }
+    };
+
+    const handleEdit = (post) => {
+        setTitle(post.title);
+        setContent(post.content);
+        setBaseLang(post.base_lang);
+        setIsEditing(true);
+        setEditingPostId(post.id);
+        setActiveView('create');
+    };
+
+    const handleSpeech = (post) => {
+        if (speakingPostId === post.id) {
+            window.speechSynthesis.cancel();
+            setSpeakingPostId(null);
+            return;
+        }
+
+        window.speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance(`${post.title}. ${post.content}`);
+        utterance.lang = post.base_lang === 'en' ? 'en-US' : post.base_lang;
+        utterance.onend = () => setSpeakingPostId(null);
+        utterance.onerror = () => setSpeakingPostId(null);
+
+        setSpeakingPostId(post.id);
+        window.speechSynthesis.speak(utterance);
     };
 
     const selectPost = async (post) => {
@@ -204,13 +277,13 @@ export default function Dashboard() {
                                 icon={<FileText size={18} />}
                                 label={t("nav.myPosts")}
                                 active={activeView === 'myposts'}
-                                onClick={() => { setActiveView('myposts'); fetchPosts(); }}
+                                onClick={() => { setActiveView('myposts'); setIsEditing(false); fetchPosts(); }}
                             />
                             <SidebarItem
                                 icon={<List size={18} />}
                                 label={t("nav.allPosts")}
                                 active={activeView === 'posts'}
-                                onClick={() => { setActiveView('posts'); fetchPosts(); }}
+                                onClick={() => { setActiveView('posts'); setIsEditing(false); fetchPosts(); }}
                             />
                         </nav>
 
@@ -266,6 +339,14 @@ export default function Dashboard() {
                             publishing={publishing} handlePublish={handlePublish}
                             aiLoading={aiLoading} aiResults={aiResults}
                             handleAI={handleAI}
+                            isEditing={isEditing}
+                            onCancel={() => {
+                                setIsEditing(false);
+                                setEditingPostId(null);
+                                setTitle('');
+                                setContent('');
+                                setActiveView('myposts');
+                            }}
                             t={t}
                         />
                     )}
@@ -275,6 +356,11 @@ export default function Dashboard() {
                             posts={activeView === 'myposts' ? posts.filter(p => p.user_id === user?.id) : posts}
                             loading={loadingPosts}
                             onSelect={selectPost}
+                            onEdit={handleEdit}
+                            onDelete={handleDelete}
+                            onSpeech={handleSpeech}
+                            speakingPostId={speakingPostId}
+                            showActions={activeView === 'myposts'}
                             t={t}
                             locale={locale}
                         />
@@ -305,8 +391,8 @@ function SidebarItem({ icon, label, active, onClick }) {
         <button
             onClick={onClick}
             className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${active
-                    ? 'bg-indigo-500/10 text-indigo-400 border border-indigo-500/20'
-                    : 'text-[#94a3b8] hover:text-white hover:bg-[#1e293b]/50'
+                ? 'bg-indigo-500/10 text-indigo-400 border border-indigo-500/20'
+                : 'text-[#94a3b8] hover:text-white hover:bg-[#1e293b]/50'
                 }`}
         >
             {icon}
@@ -319,6 +405,7 @@ function CreatePostView({
     title, setTitle, content, setContent,
     baseLang, setBaseLang, publishing, handlePublish,
     aiLoading, aiResults, handleAI,
+    isEditing, onCancel,
     t
 }) {
     return (
@@ -326,9 +413,17 @@ function CreatePostView({
             <div className="flex items-center justify-between">
                 <h3 className="text-2xl font-bold flex items-center gap-3">
                     <PenTool size={24} className="text-indigo-400" />
-                    {t("nav.createPost")}
+                    {isEditing ? "Edit Post" : t("nav.createPost")}
                 </h3>
                 <div className="flex items-center gap-3">
+                    {isEditing && (
+                        <button
+                            onClick={onCancel}
+                            className="text-[#94a3b8] hover:text-white px-4 py-2 text-sm font-bold"
+                        >
+                            {t("ui.cancel") || "Cancel"}
+                        </button>
+                    )}
                     <select
                         value={baseLang}
                         onChange={(e) => setBaseLang(e.target.value)}
@@ -344,7 +439,7 @@ function CreatePostView({
                         className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white px-6 py-2 rounded-xl font-bold transition-all"
                     >
                         <Send size={16} />
-                        {publishing ? t("editor.publishing") : t("editor.publish")}
+                        {publishing ? t("editor.publishing") : (isEditing ? (t("editor.update") || "Update") : t("editor.publish"))}
                     </button>
                 </div>
             </div>
@@ -457,7 +552,7 @@ function ResultCard({ label, content }) {
     );
 }
 
-function PostListView({ posts, loading, onSelect, t, locale }) {
+function PostListView({ posts, loading, onSelect, onEdit, onDelete, onSpeech, speakingPostId, showActions, t, locale }) {
     const [translatedPosts, setTranslatedPosts] = useState([]);
     const [translating, setTranslating] = useState(false);
 
@@ -515,30 +610,89 @@ function PostListView({ posts, loading, onSelect, t, locale }) {
                         key={post.id}
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="group bg-[#1e293b] p-6 rounded-2xl cursor-pointer transition-all hover:-translate-y-1 border border-[#334155] hover:border-indigo-500/50 hover:shadow-[0_20px_40px_rgba(0,0,0,0.3)]"
+                        className="group bg-[#1e293b] p-6 rounded-2xl cursor-pointer transition-all hover:-translate-y-1 border border-[#334155] hover:border-indigo-500/50 hover:shadow-[0_20px_40px_rgba(0,0,0,0.3)] flex flex-col h-full"
                         onClick={() => onSelect(post)}
                     >
-                        <div className="flex items-center gap-2 mb-3">
-                            <span className="bg-indigo-500/10 text-indigo-400 text-xs font-bold px-2 py-1 rounded uppercase tracking-wider">
-                                {post.base_lang}
-                            </span>
-                            {post.base_lang !== locale && (
-                                <span className="text-indigo-400/60 text-[10px] font-bold uppercase">→ {locale}</span>
-                            )}
-                            <span className="text-[#64748b] text-xs">
-                                {new Date(post.created_at).toLocaleDateString()}
-                            </span>
+                        <div className="flex-1">
+                            <div className="flex items-center justify-between mb-3">
+                                <div className="flex items-center gap-2">
+                                    <span className="bg-indigo-500/10 text-indigo-400 text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider">
+                                        {post.base_lang}
+                                    </span>
+                                    {post.base_lang !== locale && (
+                                        <span className="text-indigo-400/60 text-[10px] font-bold uppercase">→ {locale}</span>
+                                    )}
+                                </div>
+                                <span className="text-[#64748b] text-[10px]">
+                                    {new Date(post.created_at).toLocaleDateString()}
+                                </span>
+                            </div>
+                            <h3 className="text-lg font-bold mb-3 group-hover:text-indigo-400 transition-colors line-clamp-2">
+                                {post.title}
+                            </h3>
+                            <p className="text-[#94a3b8] text-sm line-clamp-3 leading-relaxed">
+                                {post.content}
+                            </p>
                         </div>
-                        <h3 className="text-lg font-bold mb-3 group-hover:text-indigo-400 transition-colors line-clamp-2">
-                            {post.title}
-                        </h3>
-                        <p className="text-[#94a3b8] text-sm line-clamp-3 leading-relaxed">
-                            {post.content}
-                        </p>
+
+                        <div className="mt-6 flex items-center justify-between border-t border-[#334155] pt-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <div className="flex items-center gap-1">
+                                <IconButton
+                                    icon={speakingPostId === post.id ? <Square size={14} fill="currentColor" /> : <Volume2 size={16} />}
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        onSpeech(post);
+                                    }}
+                                    active={speakingPostId === post.id}
+                                    color="indigo"
+                                    title="Listen"
+                                />
+                            </div>
+                            {showActions && (
+                                <div className="flex items-center gap-1">
+                                    <IconButton
+                                        icon={<Edit2 size={16} />}
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            onEdit(post);
+                                        }}
+                                        color="blue"
+                                        title="Edit"
+                                    />
+                                    <IconButton
+                                        icon={<Trash2 size={16} />}
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            onDelete(post.id);
+                                        }}
+                                        color="red"
+                                        title="Delete"
+                                    />
+                                </div>
+                            )}
+                        </div>
                     </motion.article>
                 ))}
             </div>
         </div>
+    );
+}
+
+function IconButton({ icon, onClick, active, color = 'indigo', title }) {
+    const colors = {
+        indigo: 'text-indigo-400 hover:bg-indigo-500/10',
+        red: 'text-red-400 hover:bg-red-500/10',
+        blue: 'text-blue-400 hover:bg-blue-500/10',
+    };
+
+    return (
+        <button
+            onClick={onClick}
+            title={title}
+            className={`p-2 rounded-lg transition-all ${active ? 'bg-indigo-500/20 text-indigo-400' : colors[color]}`}
+        >
+            {icon}
+        </button>
     );
 }
 

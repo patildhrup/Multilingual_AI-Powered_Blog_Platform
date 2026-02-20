@@ -39,5 +39,10 @@
     "lang.zh": "Chinese",
     "chat.title": "AI Assistant",
     "chat.placeholder": "Ask anything...",
-    "chat.empty": "Ask me about writing, SEO, translations, or content ideas!"
+    "chat.empty": "Ask me about writing, SEO, translations, or content ideas!",
+    "editor.update": "Update Post",
+    "ui.confirmDelete": "Are you sure you want to delete this post?",
+    "ui.cancel": "Cancel",
+    "ui.listen": "Listen",
+    "ui.stop": "Stop"
 }
