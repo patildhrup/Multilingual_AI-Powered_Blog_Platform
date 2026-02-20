@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import { LingoDotDevEngine } from 'lingo.dev/sdk';
+import { ChatXAI } from '@langchain/xai';
 
 dotenv.config();
 
@@ -14,6 +15,9 @@ app.use(express.json());
 
 // Initialize Lingo SDK
 const apiKey = process.env.LINGO_API_KEY || process.env.LINGODOTDEV_API_KEY;
+
+// Initialize xAI/Grok
+const xaiApiKey = process.env.XAI_API_KEY;
 
 if (!apiKey) {
     console.error('⚠️  L INGO_API_KEY not found in .env file');
@@ -68,12 +72,55 @@ app.post('/api/translate', async (req, res) => {
     }
 });
 
+// Chat endpoint using LangChain + Grok
+app.post('/api/chat', async (req, res) => {
+    try {
+        const { message, locale, history } = req.body;
+
+        if (!message) {
+            return res.status(400).json({ error: 'Message is required' });
+        }
+
+        if (!xaiApiKey) {
+            return res.status(500).json({ error: 'Chat service not configured. Set XAI_API_KEY in .env' });
+        }
+
+        const model = new ChatXAI({
+            apiKey: xaiApiKey,
+            model: 'grok-3-mini',
+            temperature: 0.7,
+        });
+
+        const langName = {
+            en: 'English', hi: 'Hindi', ar: 'Arabic',
+            fr: 'French', de: 'German', zh: 'Chinese'
+        }[locale] || 'English';
+
+        const messages = [
+            ['system', `You are a helpful AI writing assistant for a multilingual blog platform called Blogy. Help users with writing, editing, translation questions, SEO tips, and content creation. Respond in ${langName}. Keep responses concise, friendly, and helpful. Use markdown sparingly.`],
+            ...(history || []).map(m => [m.role === 'user' ? 'human' : 'assistant', m.content]),
+            ['human', message]
+        ];
+
+        const response = await model.invoke(messages);
+        res.json({ response: response.content });
+
+    } catch (error) {
+        console.error('Chat error:', error);
+        res.status(500).json({
+            error: 'Chat failed',
+            message: error.message
+        });
+    }
+});
+
 // Health check endpoint
 app.get('/health', (req, res) => {
     res.json({
         status: 'ok',
         service: 'Translation Backend',
-        apiKeyConfigured: !!apiKey
+        apiKeyConfigured: !!apiKey,
+        chatConfigured: !!xaiApiKey
     });
 });
 
