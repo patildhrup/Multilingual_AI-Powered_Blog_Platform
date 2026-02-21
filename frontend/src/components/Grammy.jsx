@@ -87,9 +87,21 @@ export default function Grammy({ mode = 'viewer', onReplace, baseLang = 'en' }) 
         setIsVisible(false);
     };
 
+    // BCP-47 locale codes for TTS voices
+    const VOICE_LOCALE_MAP = {
+        en: 'en-US',
+        hi: 'hi-IN',
+        ar: 'ar-SA',
+        fr: 'fr-FR',
+        de: 'de-DE',
+        zh: 'zh-CN',
+        ja: 'ja-JP',
+    };
+
     const handleRead = () => {
+        window.speechSynthesis.cancel(); // stop any ongoing speech
         const utterance = new SpeechSynthesisUtterance(selectedText);
-        utterance.lang = targetLang;
+        utterance.lang = VOICE_LOCALE_MAP[targetLang] || targetLang;
         window.speechSynthesis.speak(utterance);
     };
 
@@ -189,8 +201,8 @@ export default function Grammy({ mode = 'viewer', onReplace, baseLang = 'en' }) 
                                         <span className="text-[9px] font-bold uppercase">Read</span>
                                     </button>
                                     <button onClick={handleImprove} className="flex flex-col items-center gap-1.5 p-2 rounded-xl bg-white/5 hover:bg-white/10 transition-all group">
-                                        <Wand2 size={18} className="text-purple-400 group-hover:scale-110 transition-transform" />
-                                        <span className="text-[9px] font-bold uppercase">Improve</span>
+                                        <Languages size={18} className="text-purple-400 group-hover:scale-110 transition-transform" />
+                                        <span className="text-[9px] font-bold uppercase">Translate</span>
                                     </button>
                                     <button onClick={handleSuggest} className="flex flex-col items-center gap-1.5 p-2 rounded-xl bg-white/5 hover:bg-white/10 transition-all group">
                                         <Sparkles size={18} className="text-emerald-400 group-hover:scale-110 transition-transform" />
@@ -220,8 +232,18 @@ export default function Grammy({ mode = 'viewer', onReplace, baseLang = 'en' }) 
                                                 animate={{ opacity: 1, y: 0, scale: 1 }}
                                                 exit={{ opacity: 0, y: -4, scale: 0.97 }}
                                                 transition={{ type: 'spring', damping: 20, stiffness: 350 }}
-                                                className="absolute bottom-full mb-2 left-0 right-0 bg-[#0f172a] border border-white/10 rounded-xl shadow-2xl overflow-hidden z-[1100]"
+                                                className="grammy-lang-scroll absolute bottom-full mb-2 left-0 right-0 bg-[#0f172a] border border-white/10 rounded-xl shadow-2xl z-[1100] overflow-y-auto max-h-52"
+                                                style={{
+                                                    scrollbarWidth: 'thin',
+                                                    scrollbarColor: '#4f46e5 transparent',
+                                                }}
                                             >
+                                                <style>{`
+                                                    .grammy-lang-scroll::-webkit-scrollbar { width: 4px; }
+                                                    .grammy-lang-scroll::-webkit-scrollbar-track { background: transparent; }
+                                                    .grammy-lang-scroll::-webkit-scrollbar-thumb { background: #4f46e5; border-radius: 99px; }
+                                                    .grammy-lang-scroll::-webkit-scrollbar-thumb:hover { background: #6366f1; }
+                                                `}</style>
                                                 {LANGUAGES.map((lang) => (
                                                     <button
                                                         key={lang.code}
