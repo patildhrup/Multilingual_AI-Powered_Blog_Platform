@@ -13,7 +13,8 @@ import {
     BookOpen, PenTool, LogOut, User, Send, Globe, Sparkles,
     MessageSquare, ChevronLeft, ChevronRight, Plus, FileText,
     List, Hash, AlignLeft, Type, Loader2, Wand2, RefreshCw,
-    Edit2, Trash2, Mic, Square, Play, Volume2
+    Edit2, Trash2, Mic, Square, Play, Volume2,
+    Image, Video, Link, Paperclip, X
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -40,11 +41,16 @@ export default function Dashboard() {
 
     const [aiLoading, setAiLoading] = useState({});
     const [aiResults, setAiResults] = useState({});
+    const [attachments, setAttachments] = useState([]);
+    const [showLinkInput, setShowLinkInput] = useState(false);
+    const [linkUrl, setLinkUrl] = useState('');
 
     // Management & Voice State
     const [isEditing, setIsEditing] = useState(false);
     const [editingPostId, setEditingPostId] = useState(null);
     const [speakingPostId, setSpeakingPostId] = useState(null);
+    const [attachmentSummaries, setAttachmentSummaries] = useState({});
+    const [summarizingAttachment, setSummarizingAttachment] = useState({});
 
     const t = (key) => dictionary?.[key] || key;
 
@@ -76,7 +82,7 @@ export default function Dashboard() {
             content,
             base_lang: baseLang,
             user_id: user.id,
-            metadata: {}
+            metadata: { attachments }
         };
 
         let result;
@@ -96,6 +102,7 @@ export default function Dashboard() {
         if (!result.error && result.data) {
             setTitle('');
             setContent('');
+            setAttachments([]);
             setAiResults({});
             setIsEditing(false);
             setEditingPostId(null);
@@ -129,6 +136,7 @@ export default function Dashboard() {
         setTitle(post.title);
         setContent(post.content);
         setBaseLang(post.base_lang);
+        setAttachments(post.metadata?.attachments || []);
         setIsEditing(true);
         setEditingPostId(post.id);
         setActiveView('create');
@@ -149,6 +157,32 @@ export default function Dashboard() {
 
         setSpeakingPostId(post.id);
         window.speechSynthesis.speak(utterance);
+    };
+
+    const handleAttachmentSummary = async (attach) => {
+        if (summarizingAttachment[attach.url]) return;
+
+        setSummarizingAttachment(prev => ({ ...prev, [attach.url]: true }));
+        try {
+            const response = await fetch(`${import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001'}/api/summarize-document`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    fileUrl: attach.url,
+                    fileName: attach.name,
+                    locale: locale || 'en'
+                })
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                setAttachmentSummaries(prev => ({ ...prev, [attach.url]: data.response }));
+            }
+        } catch (error) {
+            console.error('Attachment summary failed:', error);
+        } finally {
+            setSummarizingAttachment(prev => ({ ...prev, [attach.url]: false }));
+        }
     };
 
     const selectPost = async (post) => {
@@ -192,6 +226,7 @@ export default function Dashboard() {
     const handleAI = async (type) => {
         setAiLoading(prev => ({ ...prev, [type]: true }));
         try {
+
             // Use the topic (title) or first part of content as context
             const topic = title || content.slice(0, 200);
 
@@ -199,10 +234,7 @@ export default function Dashboard() {
                 const improved = await improveWriting(content, baseLang);
                 if (improved) setContent(improved);
             } else {
-                // To save API tokens and provide better UX, we fetch all SEO data at once
-                // since the new backend endpoint returns it all together.
                 const result = await generateAllBlogContent(topic, baseLang);
-
                 if (result) {
                     setAiResults(prev => ({
                         ...prev,
@@ -211,8 +243,6 @@ export default function Dashboard() {
                         hashtags: (result.hashtags || []).join(' '),
                         summary: result.summary
                     }));
-
-                    // Specifically for 'title', we also update the main title field
                     if (type === 'title') setTitle(result.title);
                 }
             }
@@ -221,6 +251,36 @@ export default function Dashboard() {
         }
         setAiLoading(prev => ({ ...prev, [type]: false }));
     };
+
+    const handleFileUpload = async (event, type) => {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        setPublishing(true);
+        try {
+            const fileExt = file.name.split('.').pop();
+            const fileName = `${Math.random()}.${fileExt}`;
+            const filePath = `${user.id}/${fileName}`;
+
+            let { error: uploadError } = await supabase.storage
+                .from('blog-attachments')
+                .upload(filePath, file);
+
+            if (uploadError) throw uploadError;
+
+            const { data: { publicUrl } } = supabase.storage
+                .from('blog-attachments')
+                .getPublicUrl(filePath);
+
+            setAttachments(prev => [...prev, { type, url: publicUrl, name: file.name }]);
+        } catch (error) {
+            console.error('Error uploading file:', error);
+            alert('Error uploading file: ' + error.message);
+        } finally {
+            setPublishing(false);
+        }
+    };
+
 
     const handleSignOut = async () => {
         await signOut();
@@ -340,12 +400,20 @@ export default function Dashboard() {
                             publishing={publishing} handlePublish={handlePublish}
                             aiLoading={aiLoading} aiResults={aiResults}
                             handleAI={handleAI}
+                            attachments={attachments}
+                            setAttachments={setAttachments}
+                            handleFileUpload={handleFileUpload}
+                            showLinkInput={showLinkInput}
+                            setShowLinkInput={setShowLinkInput}
+                            linkUrl={linkUrl}
+                            setLinkUrl={setLinkUrl}
                             isEditing={isEditing}
                             onCancel={() => {
                                 setIsEditing(false);
                                 setEditingPostId(null);
                                 setTitle('');
                                 setContent('');
+                                setAttachments([]);
                                 setActiveView('myposts');
                             }}
                             t={t}
@@ -376,6 +444,10 @@ export default function Dashboard() {
                             postSummary={postSummary}
                             summarizing={summarizing}
                             handleSummarize={handleSummarize}
+                            attachmentSummaries={attachmentSummaries}
+                            setAttachmentSummaries={setAttachmentSummaries}
+                            summarizingAttachment={summarizingAttachment}
+                            handleAttachmentSummary={handleAttachmentSummary}
                             locale={locale}
                             t={t}
                             onBack={() => setActiveView('posts')}
@@ -406,9 +478,22 @@ function CreatePostView({
     title, setTitle, content, setContent,
     baseLang, setBaseLang, publishing, handlePublish,
     aiLoading, aiResults, handleAI,
+    attachments, setAttachments, handleFileUpload,
+    showLinkInput, setShowLinkInput, linkUrl, setLinkUrl,
     isEditing, onCancel,
     t
 }) {
+    const addLink = () => {
+        if (linkUrl) {
+            setAttachments(prev => [...prev, { type: 'link', url: linkUrl, name: linkUrl }]);
+            setLinkUrl('');
+            setShowLinkInput(false);
+        }
+    };
+
+    const removeAttachment = (index) => {
+        setAttachments(prev => prev.filter((_, i) => i !== index));
+    };
     return (
         <div className="max-w-4xl mx-auto space-y-8">
             <div className="flex items-center justify-between">
@@ -462,8 +547,78 @@ function CreatePostView({
                         placeholder={t("editor.contentPlaceholder")}
                         value={content}
                         onChange={(e) => setContent(e.target.value)}
-                        className="w-full bg-[#0f172a] border border-[#334155] rounded-2xl py-4 pl-12 pr-4 text-lg leading-relaxed outline-none min-h-[300px] resize-none focus:ring-2 focus:ring-indigo-500 transition-all placeholder-[#334155]"
+                        className="w-full bg-[#0f172a] border border-[#334155] rounded-2xl py-4 pl-12 pr-4 text-lg leading-relaxed outline-none min-h-[250px] resize-none focus:ring-2 focus:ring-indigo-500 transition-all placeholder-[#334155]"
                     />
+                </div>
+
+                {/* Attachments Display */}
+                {attachments.length > 0 && (
+                    <div className="flex flex-wrap gap-4 pt-4 border-t border-[#334155]">
+                        {attachments.map((attach, index) => (
+                            <div key={index} className="flex items-center gap-2 bg-[#0f172a] px-3 py-2 rounded-lg border border-[#334155] group relative overflow-hidden">
+                                {attach.type === 'photo' && <Image size={16} className="text-pink-400" />}
+                                {attach.type === 'video' && <Video size={16} className="text-purple-400" />}
+                                {attach.type === 'link' && <Link size={16} className="text-blue-400" />}
+                                {attach.type === 'document' && <FileText size={16} className="text-emerald-400" />}
+                                <span className="text-xs font-medium truncate max-w-[150px]">{attach.name}</span>
+                                <button
+                                    type="button"
+                                    onClick={() => removeAttachment(index)}
+                                    className="text-[#64748b] hover:text-red-400 transition-colors"
+                                >
+                                    <X size={14} />
+                                </button>
+                            </div>
+                        ))}
+                    </div>
+                )}
+
+                {/* Toolbar */}
+                <div className="flex items-center gap-2 pt-2">
+                    <label className="p-2.5 hover:bg-[#0f172a] rounded-xl cursor-pointer transition-all text-[#64748b] hover:text-white group relative">
+                        <Image size={20} />
+                        <input type="file" accept="image/*" className="hidden" onChange={(e) => handleFileUpload(e, 'photo')} />
+                        <span className="absolute -top-8 left-1/2 -translate-x-1/2 bg-[#334155] text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Photo</span>
+                    </label>
+                    <label className="p-2.5 hover:bg-[#0f172a] rounded-xl cursor-pointer transition-all text-[#64748b] hover:text-white group relative">
+                        <Video size={20} />
+                        <input type="file" accept="video/*" className="hidden" onChange={(e) => handleFileUpload(e, 'video')} />
+                        <span className="absolute -top-8 left-1/2 -translate-x-1/2 bg-[#334155] text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Video</span>
+                    </label>
+                    <div className="relative">
+                        <button
+                            type="button"
+                            onClick={() => setShowLinkInput(!showLinkInput)}
+                            className={`p-2.5 hover:bg-[#0f172a] rounded-xl transition-all text-[#64748b] hover:text-white group relative ${showLinkInput ? 'bg-[#0f172a] text-white' : ''}`}
+                        >
+                            <Link size={20} />
+                            <span className="absolute -top-8 left-1/2 -translate-x-1/2 bg-[#334155] text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Link</span>
+                        </button>
+                        {showLinkInput && (
+                            <div className="absolute bottom-full mb-4 left-0 bg-[#0a0f1e] border border-[#334155] p-3 rounded-xl shadow-2xl flex gap-2 min-w-[300px] z-50">
+                                <input
+                                    type="url"
+                                    placeholder="Paste link here..."
+                                    value={linkUrl}
+                                    onChange={(e) => setLinkUrl(e.target.value)}
+                                    className="flex-1 bg-[#0f172a] border border-[#334155] rounded-lg px-3 py-1.5 text-xs outline-none focus:ring-2 focus:ring-indigo-500"
+                                    autoFocus
+                                />
+                                <button
+                                    type="button"
+                                    onClick={addLink}
+                                    className="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded-lg text-xs font-bold transition-all"
+                                >
+                                    Add
+                                </button>
+                            </div>
+                        )}
+                    </div>
+                    <label className="p-2.5 hover:bg-[#0f172a] rounded-xl cursor-pointer transition-all text-[#64748b] hover:text-white group relative">
+                        <FileText size={20} />
+                        <input type="file" className="hidden" onChange={(e) => handleFileUpload(e, 'document')} />
+                        <span className="absolute -top-8 left-1/2 -translate-x-1/2 bg-[#334155] text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Document</span>
+                    </label>
                 </div>
             </div>
 
@@ -473,7 +628,7 @@ function CreatePostView({
                     <h4 className="text-lg font-bold">{t("ai.assistant")}</h4>
                 </div>
 
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
                     <AIButton
                         icon={<Type size={16} />}
                         label={t("ai.generateTitle")}
@@ -513,7 +668,7 @@ function CreatePostView({
                     {t("ai.improveWriting")}
                 </button>
 
-                {(aiResults.seo || aiResults.hashtags || aiResults.summary) && (
+                {(aiResults.seo || aiResults.hashtags || aiResults.summary || aiResults.fileSummary) && (
                     <div className="space-y-3">
                         {aiResults.seo && (
                             <ResultCard label="SEO Description" content={aiResults.seo} />
@@ -697,7 +852,7 @@ function IconButton({ icon, onClick, active, color = 'indigo', title }) {
     );
 }
 
-function PostDetailView({ post, comments, newComment, setNewComment, handleComment, postSummary, summarizing, handleSummarize, locale, t, onBack }) {
+function PostDetailView({ post, comments, newComment, setNewComment, handleComment, postSummary, summarizing, handleSummarize, attachmentSummaries, setAttachmentSummaries, summarizingAttachment, handleAttachmentSummary, locale, t, onBack }) {
     const [translatedPost, setTranslatedPost] = useState(post);
     const [postTranslating, setPostTranslating] = useState(false);
 
@@ -740,7 +895,144 @@ function PostDetailView({ post, comments, newComment, setNewComment, handleComme
                     <span className="text-[#64748b] text-sm">{new Date(post.created_at).toLocaleDateString()}</span>
                 </div>
                 <h2 className="text-3xl md:text-4xl font-black mb-6">{translatedPost.title}</h2>
-                <p className="text-lg text-[#cbd5e1] leading-relaxed whitespace-pre-wrap">{translatedPost.content}</p>
+                <p className="text-lg text-[#cbd5e1] leading-relaxed whitespace-pre-wrap mb-10">{translatedPost.content}</p>
+
+                {/* Attachments Section */}
+                {post.metadata?.attachments?.length > 0 && (
+                    <div className="mb-10 space-y-4">
+                        <h4 className="text-sm font-bold flex items-center gap-2 text-[#64748b] uppercase tracking-widest">
+                            <Paperclip size={14} className="text-indigo-400" />
+                            Attachments & Media
+                        </h4>
+                        <div className="grid grid-cols-1 gap-4">
+                            {post.metadata.attachments.map((attach, index) => {
+                                const ytId = attach.type === 'link' ? (() => {
+                                    try {
+                                        const u = new URL(attach.url);
+                                        if (u.hostname.includes('youtube.com')) return u.searchParams.get('v');
+                                        if (u.hostname.includes('youtu.be')) return u.pathname.slice(1);
+                                    } catch { return null; }
+                                    return null;
+                                })() : null;
+
+                                return (
+                                    <div key={index} className="bg-[#1e293b] border border-[#334155] rounded-2xl overflow-hidden hover:border-indigo-500/50 transition-all shadow-lg">
+                                        {/* Photo */}
+                                        {attach.type === 'photo' && (
+                                            <div className="w-full bg-[#0f172a] flex items-center justify-center">
+                                                <img
+                                                    src={attach.url}
+                                                    alt={attach.name}
+                                                    className="w-full max-h-[500px] object-contain"
+                                                    onError={(e) => { e.target.style.display = 'none'; e.target.nextSibling.style.display = 'flex'; }}
+                                                />
+                                                <div style={{ display: 'none' }} className="p-6 flex items-center gap-3 text-[#64748b]">
+                                                    <Image size={20} />
+                                                    <span className="text-sm">{attach.name}</span>
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {/* Native Video */}
+                                        {attach.type === 'video' && (
+                                            <div className="w-full aspect-video bg-black">
+                                                <video controls className="w-full h-full">
+                                                    <source src={attach.url} />
+                                                    Your browser does not support the video tag.
+                                                </video>
+                                            </div>
+                                        )}
+
+                                        {/* YouTube Embed */}
+                                        {ytId && (
+                                            <div className="w-full aspect-video">
+                                                <iframe
+                                                    className="w-full h-full"
+                                                    src={`https://www.youtube.com/embed/${ytId}`}
+                                                    title="YouTube video player"
+                                                    frameBorder="0"
+                                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                                    allowFullScreen
+                                                ></iframe>
+                                            </div>
+                                        )}
+
+                                        {/* Caption / Actions bar */}
+                                        <div className="p-3 flex items-center justify-between gap-3">
+                                            <div className="flex items-center gap-2 min-w-0">
+                                                <div className="w-7 h-7 bg-[#0f172a] rounded-lg flex items-center justify-center text-indigo-400 flex-shrink-0">
+                                                    {attach.type === 'photo' && <Image size={14} />}
+                                                    {attach.type === 'video' && <Video size={14} />}
+                                                    {(attach.type === 'link') && <Link size={14} />}
+                                                    {attach.type === 'document' && <FileText size={14} />}
+                                                </div>
+                                                <div className="min-w-0">
+                                                    <p className="font-bold text-xs truncate">{attach.name}</p>
+                                                    <p className="text-[8px] text-[#475569] uppercase font-black">{attach.type}</p>
+                                                </div>
+                                            </div>
+                                            <a href={attach.url} target="_blank" rel="noopener noreferrer" className="text-[#475569] hover:text-white flex-shrink-0">
+                                                <Globe size={14} />
+                                            </a>
+                                        </div>
+
+                                        {/* Generic Link card (non-YouTube) */}
+                                        {attach.type === 'link' && !ytId && (
+                                            <div className="px-3 pb-3">
+                                                <a href={attach.url} target="_blank" rel="noopener noreferrer"
+                                                    className="block bg-[#0f172a] border border-[#334155] rounded-xl px-4 py-3 hover:border-indigo-500/30 transition-all">
+                                                    <p className="text-[11px] text-indigo-400 font-bold truncate">{attach.url}</p>
+                                                </a>
+                                            </div>
+                                        )}
+
+                                        {/* Document inline */}
+                                        {attach.type === 'document' && attach.url.toLowerCase().endsWith('.pdf') && (
+                                            <div className="mx-3 mb-3 border border-[#334155] rounded-xl overflow-hidden" style={{ height: '400px' }}>
+                                                <iframe src={`${attach.url}#toolbar=0`} className="w-full h-full" title="PDF Document"></iframe>
+                                            </div>
+                                        )}
+
+                                        {/* AI Summary */}
+                                        {(attach.type === 'document' || attach.type === 'link' || attach.type === 'photo') && (
+                                            <div className="px-3 pb-3">
+                                                {attachmentSummaries[attach.url] ? (
+                                                    <div className="bg-[#0f172a] p-2.5 rounded-lg border border-indigo-500/10">
+                                                        <div className="flex items-center justify-between mb-1">
+                                                            <span className="text-[9px] font-black text-indigo-400 uppercase tracking-widest">AI Summary</span>
+                                                            <button
+                                                                onClick={() => setAttachmentSummaries(prev => {
+                                                                    const next = { ...prev };
+                                                                    delete next[attach.url];
+                                                                    return next;
+                                                                })}
+                                                                className="text-[#334155] hover:text-white"
+                                                            >
+                                                                <X size={10} />
+                                                            </button>
+                                                        </div>
+                                                        <p className="text-[11px] text-indigo-100 italic leading-snug">
+                                                            {attachmentSummaries[attach.url]}
+                                                        </p>
+                                                    </div>
+                                                ) : (
+                                                    <button
+                                                        onClick={() => handleAttachmentSummary(attach)}
+                                                        disabled={summarizingAttachment[attach.url]}
+                                                        className="w-full flex items-center justify-center gap-1.5 py-1.5 bg-indigo-600/5 hover:bg-indigo-600/10 text-indigo-400 rounded-lg text-[10px] font-bold transition-all border border-indigo-500/10"
+                                                    >
+                                                        {summarizingAttachment[attach.url] ? <Loader2 size={12} className="animate-spin" /> : <Sparkles size={12} />}
+                                                        {summarizingAttachment[attach.url] ? 'Summarizing...' : 'AI Summary'}
+                                                    </button>
+                                                )}
+                                            </div>
+                                        )}
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </div>
+                )}
             </article>
 
             <div className="bg-indigo-600/10 border border-indigo-500/20 rounded-2xl p-6">

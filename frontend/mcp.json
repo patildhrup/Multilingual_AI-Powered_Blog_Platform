@@ -2,6 +2,9 @@
   "mcpServers": {
     "lingo": {
       "url": "https://mcp.lingo.dev/main"
+    },
+    "supabase": {
+      "url": "https://mcp.supabase.com/mcp?project_ref=snilqhgdzftpbqnayhmk"
     }
   }
 }

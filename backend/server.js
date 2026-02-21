@@ -4,7 +4,8 @@ import dotenv from 'dotenv';
 import { LingoDotDevEngine } from 'lingo.dev/sdk';
 import { ChatOpenAI } from '@langchain/openai';
 import { SystemMessage, HumanMessage, AIMessage } from '@langchain/core/messages';
-import { generateBlogContent, improveContent, summarizeComments } from './services/aiWriter.js';
+import { generateBlogContent, improveContent, summarizeComments, summarizeDocument } from './services/aiWriter.js';
+import { extractContent } from './services/contentExtractor.js';
 
 dotenv.config();
 
@@ -143,6 +144,35 @@ app.post('/api/generate-blog', async (req, res) => {
         console.error('AI Generation error:', error);
         res.status(500).json({
             error: 'AI Generation failed',
+            message: error.message
+        });
+    }
+});
+
+app.post('/api/summarize-document', async (req, res) => {
+    try {
+        const { fileUrl, fileName, locale } = req.body;
+        console.log('Document summarization request:', { fileName, locale });
+
+        if (!openRouterApiKey) {
+            return res.status(500).json({ error: 'AI Writing Assistant not configured. Set OPENROUTE_API_KEY in .env' });
+        }
+
+        const langName = {
+            en: 'English', hi: 'Hindi', ar: 'Arabic',
+            fr: 'French', de: 'German', zh: 'Chinese', ja: 'Japanese', es: 'Spanish'
+        }[locale] || 'English';
+
+        // Extract content locally before sending to AI
+        const extractedContent = await extractContent(fileUrl, fileName);
+
+        const result = await summarizeDocument(fileUrl, fileName, langName, extractedContent);
+        res.json({ response: result });
+
+    } catch (error) {
+        console.error('AI Summarization error:', error);
+        res.status(500).json({
+            error: 'AI Summarization failed',
             message: error.message
         });
     }

@@ -11,12 +11,20 @@
     "@langchain/groq": "^1.1.2",
     "@langchain/openai": "^1.2.9",
     "@langchain/xai": "^0.1.0",
+    "axios": "^1.13.5",
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
     "express": "^4.18.2",
+    "file-type": "^21.3.0",
+    "googleapis": "^171.4.0",
     "langchain": "^1.2.25",
     "lingo.dev": "^0.124.0",
-    "openai": "^6.22.0"
+    "mammoth": "^1.11.0",
+    "multer": "^2.0.2",
+    "open-graph-scraper": "^6.11.0",
+    "openai": "^6.22.0",
+    "pdf-parse": "^2.4.5",
+    "sharp": "^0.34.5"
   },
   "devDependencies": {
     "nodemon": "^3.0.1"

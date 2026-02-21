@@ -80,33 +80,6 @@ Open [http://localhost:5173](http://localhost:5173) in your browser.
 - **[Frontend README](frontend/README.md)** - Detailed frontend setup, features, and API documentation
 - **[Backend README](backend/README.md)** - Backend configuration, endpoints, and deployment
 
-## 🏗️ Project Structure
-
-```
-Multilingual_AI-Powered_Blog_Platform/
-├── frontend/                    # React + Vite frontend
-│   ├── src/
-│   │   ├── components/         # Reusable React components
-│   │   ├── pages/              # Page components
-│   │   ├── context/            # Auth and global state
-│   │   ├── lib/                # Utilities and API clients
-│   │   ├── locales/            # i18n translation files
-│   │   └── lingo/              # Lingo dictionary for translations
-│   ├── public/
-│   ├── package.json
-│   ├── vite.config.js
-│   ├── tailwind.config.js
-│   └── README.md
-│
-├── backend/                     # Express.js API server
-│   ├── server.js               # Main server file
-│   ├── supabase/               # Database migrations
-│   ├── package.json
-│   └── README.md
-│
-└── README.md                    # This file
-```
-
 ## 🛠️ Technology Stack
 
 ### Frontend

@@ -6,7 +6,10 @@ import { translateContent } from '../lib/lingo';
 import { generateSummary, summarizeComments } from '../lib/ai';
 import { useAuth } from '../context/AuthContext';
 import AuthModal from '../components/AuthModal';
-import { ArrowLeft, MessageSquare, Sparkles, User, Send, Globe, LogIn, LogOut } from 'lucide-react';
+import {
+    ArrowLeft, MessageSquare, Sparkles, User, Send, Globe, LogIn, LogOut,
+    Image, Video, Link, FileText, X, Loader2, Paperclip
+} from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 
@@ -30,6 +33,8 @@ export default function PostDetails() {
     const [postSummary, setPostSummary] = useState('');
     const [summarizing, setSummarizing] = useState(false);
     const [summarizingPost, setSummarizingPost] = useState(false);
+    const [attachmentSummaries, setAttachmentSummaries] = useState({});
+    const [summarizingAttachment, setSummarizingAttachment] = useState({});
 
 
     const t = (key) => {
@@ -58,8 +63,25 @@ export default function PostDetails() {
             console.error('Error fetching post:', error);
             navigate('/');
         } else {
-            setPost(data);
-            setTranslatedPost(data);
+            // Ensure metadata is a proper object
+            let processedData = { ...data };
+            if (!processedData.metadata) {
+                processedData.metadata = { attachments: [] };
+            } else if (typeof data.metadata === 'string') {
+                try {
+                    processedData.metadata = JSON.parse(data.metadata);
+                } catch (e) {
+                    console.error('Error parsing metadata:', e);
+                    processedData.metadata = { attachments: [] };
+                }
+            }
+            // Ensure attachments is always an array
+            if (!Array.isArray(processedData.metadata?.attachments)) {
+                processedData.metadata.attachments = [];
+            }
+
+            setPost(processedData);
+            setTranslatedPost(processedData);
         }
     };
 
@@ -135,6 +157,38 @@ export default function PostDetails() {
         setSummarizingPost(false);
     };
 
+    const handleAttachmentSummary = async (attach) => {
+        if (summarizingAttachment[attach.url]) return;
+
+        setSummarizingAttachment(prev => ({ ...prev, [attach.url]: true }));
+        try {
+            const response = await fetch(`${import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001'}/api/summarize-document`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    fileUrl: attach.url,
+                    fileName: attach.name,
+                    locale: currentLocale || 'en'
+                })
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                setAttachmentSummaries(prev => ({ ...prev, [attach.url]: data.response }));
+            }
+        } catch (error) {
+            console.error('Attachment summary failed:', error);
+        } finally {
+            setSummarizingAttachment(prev => ({ ...prev, [attach.url]: false }));
+        }
+    };
+
+    const getYouTubeId = (url) => {
+        const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+        const match = url.match(regExp);
+        return (match && match[2].length === 11) ? match[2] : null;
+    };
+
     if (loading) return <div className="min-h-screen bg-[#0f172a] flex items-center justify-center text-white">Loading...</div>;
 
     return (
@@ -207,9 +261,162 @@ export default function PostDetails() {
                         </div>
                     </div>
 
-                    <p className="text-xl md:text-2xl leading-relaxed text-[#cbd5e1] whitespace-pre-wrap">
+                    <div className="text-xl md:text-2xl leading-relaxed text-[#cbd5e1] whitespace-pre-wrap mb-12">
                         {translatedPost.content}
-                    </p>
+                    </div>
+
+                    {/* Attachments Section */}
+                    {post.metadata?.attachments?.length > 0 && (
+                        <div className="mb-12 space-y-6">
+                            <h4 className="text-lg font-bold flex items-center gap-2 text-[#94a3b8]">
+                                <Paperclip size={18} className="text-indigo-400" />
+                                Attachments & Media
+                            </h4>
+                            <div className="grid grid-cols-1 gap-6">
+                                {post.metadata.attachments.map((attach, index) => {
+                                    const ytId = attach.type === 'link' ? getYouTubeId(attach.url) : null;
+
+                                    return (
+                                        <div key={index} className="bg-[#1e293b] border border-[#334155] rounded-3xl overflow-hidden transition-all hover:border-indigo-500/50 shadow-xl group">
+                                            {/* Media Player / View Region */}
+                                            {attach.type === 'photo' && (
+                                                <div className="w-full bg-[#0f172a] flex items-center justify-center min-h-[300px]">
+                                                    <img
+                                                        src={attach.url}
+                                                        alt={attach.name}
+                                                        className="max-w-full max-h-[600px] object-contain shadow-2xl"
+                                                        onError={(e) => {
+                                                            e.target.style.display = 'none';
+                                                            e.target.parentNode.innerHTML = `<div style="padding:24px;display:flex;align-items:center;gap:12px;color:#64748b"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21,15 16,10 5,21"/></svg><span>${attach.name}</span></div>`;
+                                                        }}
+                                                    />
+                                                </div>
+                                            )}
+
+                                            {attach.type === 'video' && (
+                                                <div className="w-full aspect-video bg-black">
+                                                    <video controls className="w-full h-full shadow-2xl">
+                                                        <source src={attach.url} />
+                                                        Your browser does not support the video tag.
+                                                    </video>
+                                                </div>
+                                            )}
+
+                                            {ytId && (
+                                                <div className="w-full aspect-video">
+                                                    <iframe
+                                                        className="w-full h-full"
+                                                        src={`https://www.youtube.com/embed/${ytId}`}
+                                                        title="YouTube video player"
+                                                        frameBorder="0"
+                                                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                                                        allowFullScreen
+                                                    ></iframe>
+                                                </div>
+                                            )}
+
+                                            {/* Link Card UI for generic links */}
+                                            {attach.type === 'link' && !ytId && (
+                                                <div className="p-6 flex items-start gap-4">
+                                                    <div className="w-16 h-16 bg-blue-500/10 rounded-2xl flex items-center justify-center text-blue-400 flex-shrink-0">
+                                                        <Link size={32} />
+                                                    </div>
+                                                    <div className="flex-1 min-w-0">
+                                                        <h5 className="font-bold text-xl mb-1 truncate">{attach.name}</h5>
+                                                        <p className="text-sm text-[#64748b] break-all">{attach.url}</p>
+                                                    </div>
+                                                </div>
+                                            )}
+
+                                            {/* Document UI */}
+                                            {attach.type === 'document' && (
+                                                <div className="flex flex-col">
+                                                    <div className="p-6 flex items-start gap-4">
+                                                        <div className="w-16 h-16 bg-emerald-500/10 rounded-2xl flex items-center justify-center text-emerald-400 flex-shrink-0">
+                                                            <FileText size={32} />
+                                                        </div>
+                                                        <div className="flex-1 min-w-0">
+                                                            <h5 className="font-bold text-xl mb-1 truncate">{attach.name}</h5>
+                                                            <p className="text-sm text-[#64748b] uppercase tracking-widest font-black">Document Asset</p>
+                                                        </div>
+                                                    </div>
+                                                    {attach.url.toLowerCase().endsWith('.pdf') && (
+                                                        <div className="mx-6 mb-6 h-[500px] border border-[#334155] rounded-2xl overflow-hidden bg-white">
+                                                            <iframe
+                                                                src={`${attach.url}#toolbar=0`}
+                                                                className="w-full h-full"
+                                                                title="PDF Document"
+                                                            ></iframe>
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            )}
+
+                                            {/* Common Footer / Info */}
+                                            <div className="p-6 pt-0 flex flex-col gap-4">
+                                                {/* Summary Section */}
+                                                {(attach.type === 'document' || attach.type === 'link' || attach.type === 'photo') && (
+                                                    <div className="mt-2">
+                                                        {attachmentSummaries[attach.url] ? (
+                                                            <div className="bg-[#0f172a] p-4 rounded-2xl border border-indigo-500/20 relative group/summary">
+                                                                <div className="flex items-center justify-between mb-2">
+                                                                    <span className="text-[10px] font-black text-indigo-400 uppercase tracking-widest flex items-center gap-1">
+                                                                        <Sparkles size={10} /> AI Summary
+                                                                    </span>
+                                                                    <button
+                                                                        onClick={() => setAttachmentSummaries(prev => {
+                                                                            const next = { ...prev };
+                                                                            delete next[attach.url];
+                                                                            return next;
+                                                                        })}
+                                                                        className="text-[#475569] hover:text-white transition-colors"
+                                                                    >
+                                                                        <X size={14} />
+                                                                    </button>
+                                                                </div>
+                                                                <p className="text-[#94a3b8] text-sm leading-relaxed italic">
+                                                                    {attachmentSummaries[attach.url]}
+                                                                </p>
+                                                            </div>
+                                                        ) : (
+                                                            <button
+                                                                onClick={() => handleAttachmentSummary(attach)}
+                                                                disabled={summarizingAttachment[attach.url]}
+                                                                className="w-full flex items-center justify-center gap-3 py-3 bg-indigo-600/10 hover:bg-indigo-600/20 text-indigo-400 rounded-2xl text-sm font-bold transition-all border border-indigo-500/20 disabled:opacity-50"
+                                                            >
+                                                                {summarizingAttachment[attach.url] ? (
+                                                                    <Loader2 size={16} className="animate-spin" />
+                                                                ) : (
+                                                                    <Sparkles size={16} />
+                                                                )}
+                                                                {summarizingAttachment[attach.url] ? 'AI is analyzing...' : 'Generate AI Summary'}
+                                                            </button>
+                                                        )}
+                                                    </div>
+                                                )}
+
+                                                <div className="flex items-center justify-between border-t border-[#334155] pt-4">
+                                                    <div className="flex items-center gap-2">
+                                                        <div className={`w-2 h-2 rounded-full ${attach.type === 'photo' ? 'bg-pink-400' : attach.type === 'video' ? 'bg-purple-400' : attach.type === 'link' ? 'bg-blue-400' : 'bg-emerald-400'}`} />
+                                                        <span className="text-[10px] text-[#64748b] uppercase font-black tracking-widest">{attach.type}</span>
+                                                    </div>
+                                                    <a
+                                                        href={attach.url}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="flex items-center gap-2 bg-[#0f172a] hover:bg-indigo-600 text-white px-4 py-2 rounded-xl text-xs font-bold transition-all border border-[#334155] hover:border-indigo-400 shadow-lg"
+                                                    >
+                                                        <Globe size={14} />
+                                                        View Original
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                        </div>
+                    )}
 
                     {/* AI Post Summary Section */}
                     <div className="mt-12 p-6 rounded-2xl bg-white/5 border border-white/10">
