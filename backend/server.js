@@ -149,6 +149,23 @@ app.post('/api/generate-blog', async (req, res) => {
     }
 });
 
+app.post('/api/extract-text', async (req, res) => {
+    try {
+        const { fileUrl, fileName } = req.body;
+        console.log('Text extraction request:', { fileName });
+
+        const extractedContent = await extractContent(fileUrl, fileName);
+        res.json({ content: extractedContent });
+
+    } catch (error) {
+        console.error('Text extraction error:', error);
+        res.status(500).json({
+            error: 'Text extraction failed',
+            message: error.message
+        });
+    }
+});
+
 app.post('/api/summarize-document', async (req, res) => {
     try {
         const { fileUrl, fileName, locale } = req.body;

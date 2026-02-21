@@ -4,11 +4,8 @@ import { google } from 'googleapis';
 import { fileTypeFromBuffer } from 'file-type';
 import sharp from 'sharp';
 import dotenv from 'dotenv';
-import { createRequire } from 'module';
-
-const require = createRequire(import.meta.url);
-const pdf = require('pdf-parse');
-const mammoth = require('mammoth');
+import { PDFParse as pdf } from 'pdf-parse';
+import mammoth from 'mammoth';
 
 dotenv.config();
 

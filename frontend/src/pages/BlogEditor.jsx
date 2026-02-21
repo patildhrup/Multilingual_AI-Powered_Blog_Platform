@@ -4,6 +4,7 @@ import { supabase } from '../lib/supabase';
 import { useLingo, useLingoLocale, setLingoLocale } from "lingo.dev/react/client";
 import { Send, ArrowLeft, Type, AlignLeft, Languages, Image, Video, Link, FileText, Paperclip, X } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import LanguageSelector from '../components/LanguageSelector';
 
 export default function BlogEditor() {
     const navigate = useNavigate();
@@ -121,23 +122,14 @@ export default function BlogEditor() {
                     </button>
 
                     <div className="flex items-center gap-4">
-                        <div className="flex items-center gap-2 bg-[#1e293b] px-3 py-1.5 rounded-lg border border-[#334155]">
-                            <Languages size={16} className="text-indigo-400" />
-                            <select
-                                value={baseLang}
-                                onChange={(e) => {
-                                    setBaseLang(e.target.value);
-                                    setLingoLocaleFn(e.target.value);
-                                }}
-                                className="bg-transparent text-sm font-semibold outline-none cursor-pointer"
-                            >
-                                <option value="en">English (US)</option>
-                                <option value="hi">Hindi (हिंदी)</option>
-                                <option value="ja">Japanese (日本語)</option>
-                                <option value="fr">French (Français)</option>
-                                <option value="es">Spanish (Español)</option>
-                            </select>
-                        </div>
+                        <LanguageSelector
+                            currentLocale={baseLang}
+                            onChange={(val) => {
+                                setBaseLang(val);
+                                setLingoLocaleFn(val);
+                            }}
+                            className="min-w-[180px]"
+                        />
 
                         <button
                             onClick={handleSubmit}
@@ -185,8 +177,8 @@ export default function BlogEditor() {
                                         </div>
                                     ) : (
                                         <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 border border-[#334155] ${attach.type === 'video' ? 'bg-purple-500/10 text-purple-400' :
-                                                attach.type === 'link' ? 'bg-blue-500/10 text-blue-400' :
-                                                    'bg-emerald-500/10 text-emerald-400'
+                                            attach.type === 'link' ? 'bg-blue-500/10 text-blue-400' :
+                                                'bg-emerald-500/10 text-emerald-400'
                                             }`}>
                                             {attach.type === 'video' && <Video size={20} />}
                                             {attach.type === 'link' && <Link size={20} />}

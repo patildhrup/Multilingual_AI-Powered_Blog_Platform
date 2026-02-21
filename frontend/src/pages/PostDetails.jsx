@@ -8,7 +8,7 @@ import { useAuth } from '../context/AuthContext';
 import AuthModal from '../components/AuthModal';
 import {
     ArrowLeft, MessageSquare, Sparkles, User, Send, Globe, LogIn, LogOut,
-    Image, Video, Link, FileText, X, Loader2, Paperclip
+    Image, Video, Link, FileText, X, Loader2, Paperclip, BookOpen, Download
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -35,6 +35,10 @@ export default function PostDetails() {
     const [summarizingPost, setSummarizingPost] = useState(false);
     const [attachmentSummaries, setAttachmentSummaries] = useState({});
     const [summarizingAttachment, setSummarizingAttachment] = useState({});
+    const [readerOpen, setReaderOpen] = useState(false);
+    const [readingContent, setReadingContent] = useState('');
+    const [readingTitle, setReadingTitle] = useState('');
+    const [loadingReader, setLoadingReader] = useState(false);
 
 
     const t = (key) => {
@@ -157,6 +161,36 @@ export default function PostDetails() {
         setSummarizingPost(false);
     };
 
+    const handleReadDocument = async (attach) => {
+        setReadingTitle(attach.name);
+        setReaderOpen(true);
+        setLoadingReader(true);
+        setReadingContent('');
+
+        try {
+            const response = await fetch(`${import.meta.env.VITE_BACKEND_URL || 'http://localhost:3001'}/api/extract-text`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    fileUrl: attach.url,
+                    fileName: attach.name
+                })
+            });
+
+            const data = await response.json();
+            if (data.content) {
+                setReadingContent(data.content);
+            } else {
+                setReadingContent('No readable content found in this document.');
+            }
+        } catch (error) {
+            console.error('Extraction failed:', error);
+            setReadingContent('Failed to load document content. Please try again or download the file.');
+        } finally {
+            setLoadingReader(false);
+        }
+    };
+
     const handleAttachmentSummary = async (attach) => {
         if (summarizingAttachment[attach.url]) return;
 
@@ -273,39 +307,61 @@ export default function PostDetails() {
                                 Attachments & Media
                             </h4>
                             <div className="grid grid-cols-1 gap-6">
-                                {post.metadata.attachments.map((attach, index) => {
+                                {post.metadata.attachments.map((attach, idx) => {
                                     const ytId = attach.type === 'link' ? getYouTubeId(attach.url) : null;
+                                    const isDocLink = attach.type === 'link' && (attach.url.toLowerCase().endsWith('.pdf') || attach.url.toLowerCase().endsWith('.docx'));
 
                                     return (
-                                        <div key={index} className="bg-[#1e293b] border border-[#334155] rounded-3xl overflow-hidden transition-all hover:border-indigo-500/50 shadow-xl group">
-                                            {/* Media Player / View Region */}
+                                        <motion.div
+                                            key={idx}
+                                            initial={{ opacity: 0, scale: 0.95 }}
+                                            animate={{ opacity: 1, scale: 1 }}
+                                            className="bg-[#1e293b]/50 border border-[#334155] rounded-[2rem] overflow-hidden hover:border-indigo-500/30 transition-all group/card shadow-xl"
+                                        >
+                                            {/* Photo UI */}
                                             {attach.type === 'photo' && (
-                                                <div className="w-full bg-[#0f172a] flex items-center justify-center min-h-[300px]">
+                                                <div className="relative aspect-video overflow-hidden">
                                                     <img
                                                         src={attach.url}
                                                         alt={attach.name}
-                                                        className="max-w-full max-h-[600px] object-contain shadow-2xl"
+                                                        className="w-full h-full object-cover group-hover/card:scale-110 transition-transform duration-700"
                                                         onError={(e) => {
-                                                            e.target.style.display = 'none';
-                                                            e.target.parentNode.innerHTML = `<div style="padding:24px;display:flex;align-items:center;gap:12px;color:#64748b"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21,15 16,10 5,21"/></svg><span>${attach.name}</span></div>`;
+                                                            e.target.onerror = null;
+                                                            e.target.src = 'https://via.placeholder.com/800x450?text=Image+Not+Found';
                                                         }}
                                                     />
+                                                    <div className="absolute inset-0 bg-gradient-to-t from-[#0f172a] via-transparent to-transparent opacity-60"></div>
+                                                    <div className="absolute bottom-4 left-6 flex items-center gap-2">
+                                                        <div className="w-8 h-8 bg-indigo-500/20 backdrop-blur-md rounded-lg flex items-center justify-center text-indigo-400 border border-indigo-500/30">
+                                                            <Image size={16} />
+                                                        </div>
+                                                        <span className="text-sm font-bold text-white tracking-wide">{attach.name}</span>
+                                                    </div>
                                                 </div>
                                             )}
 
+                                            {/* Video UI */}
                                             {attach.type === 'video' && (
-                                                <div className="w-full aspect-video bg-black">
-                                                    <video controls className="w-full h-full shadow-2xl">
-                                                        <source src={attach.url} />
-                                                        Your browser does not support the video tag.
-                                                    </video>
+                                                <div className="aspect-video bg-black relative group/video">
+                                                    <video
+                                                        src={attach.url}
+                                                        controls
+                                                        className="w-full h-full"
+                                                    ></video>
+                                                    <div className="absolute top-4 left-6 flex items-center gap-2 pointer-events-none">
+                                                        <div className="w-8 h-8 bg-red-500/20 backdrop-blur-md rounded-lg flex items-center justify-center text-red-400 border border-red-500/30">
+                                                            <Video size={16} />
+                                                        </div>
+                                                    </div>
                                                 </div>
                                             )}
 
-                                            {ytId && (
-                                                <div className="w-full aspect-video">
+                                            {/* YouTube UI */}
+                                            {attach.type === 'link' && ytId && (
+                                                <div className="aspect-video">
                                                     <iframe
-                                                        className="w-full h-full"
+                                                        width="100%"
+                                                        height="100%"
                                                         src={`https://www.youtube.com/embed/${ytId}`}
                                                         title="YouTube video player"
                                                         frameBorder="0"
@@ -315,15 +371,24 @@ export default function PostDetails() {
                                                 </div>
                                             )}
 
-                                            {/* Link Card UI for generic links */}
+                                            {/* Link Card UI for generic links / doc links */}
                                             {attach.type === 'link' && !ytId && (
-                                                <div className="p-6 flex items-start gap-4">
-                                                    <div className="w-16 h-16 bg-blue-500/10 rounded-2xl flex items-center justify-center text-blue-400 flex-shrink-0">
-                                                        <Link size={32} />
+                                                <div
+                                                    className={`p-6 flex items-start gap-4 transition-all ${isDocLink ? 'cursor-pointer hover:bg-indigo-500/5' : ''}`}
+                                                    onClick={() => isDocLink && handleReadDocument(attach)}
+                                                >
+                                                    <div className={`w-16 h-16 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-lg border ${isDocLink ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-blue-500/10 text-blue-400 border-blue-500/20'
+                                                        }`}>
+                                                        {isDocLink ? <FileText size={32} /> : <Link size={32} />}
                                                     </div>
                                                     <div className="flex-1 min-w-0">
-                                                        <h5 className="font-bold text-xl mb-1 truncate">{attach.name}</h5>
-                                                        <p className="text-sm text-[#64748b] break-all">{attach.url}</p>
+                                                        <h5 className="font-bold text-xl mb-1 truncate text-white">{attach.name}</h5>
+                                                        <p className={`text-sm break-all mb-2 ${isDocLink ? 'text-emerald-400/70' : 'text-[#64748b]'}`}>{attach.url}</p>
+                                                        {isDocLink && (
+                                                            <span className="text-[10px] bg-indigo-500/20 text-indigo-400 px-2 py-0.5 rounded-md font-black uppercase tracking-[0.1em] flex items-center gap-1 w-fit">
+                                                                <BookOpen size={10} /> Read Available
+                                                            </span>
+                                                        )}
                                                     </div>
                                                 </div>
                                             )}
@@ -331,17 +396,44 @@ export default function PostDetails() {
                                             {/* Document UI */}
                                             {attach.type === 'document' && (
                                                 <div className="flex flex-col">
-                                                    <div className="p-6 flex items-start gap-4">
-                                                        <div className="w-16 h-16 bg-emerald-500/10 rounded-2xl flex items-center justify-center text-emerald-400 flex-shrink-0">
+                                                    <div
+                                                        className="p-6 flex flex-col md:flex-row items-center md:items-start gap-6 cursor-pointer hover:bg-indigo-500/5 transition-all"
+                                                        onClick={() => handleReadDocument(attach)}
+                                                    >
+                                                        <div className="w-16 h-16 bg-emerald-500/10 rounded-2xl flex items-center justify-center text-emerald-400 flex-shrink-0 shadow-lg border border-emerald-500/20">
                                                             <FileText size={32} />
                                                         </div>
-                                                        <div className="flex-1 min-w-0">
-                                                            <h5 className="font-bold text-xl mb-1 truncate">{attach.name}</h5>
-                                                            <p className="text-sm text-[#64748b] uppercase tracking-widest font-black">Document Asset</p>
+                                                        <div className="flex-1 min-w-0 text-center md:text-left">
+                                                            <h5 className="font-bold text-xl mb-1 truncate text-white">{attach.name}</h5>
+                                                            <p className="text-xs text-[#64748b] uppercase tracking-widest font-black mb-4">Document Asset</p>
+
+                                                            <div className="flex flex-wrap items-center justify-center md:justify-start gap-3">
+                                                                <button
+                                                                    onClick={(e) => {
+                                                                        e.stopPropagation();
+                                                                        handleReadDocument(attach);
+                                                                    }}
+                                                                    className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-xl font-bold transition-all shadow-lg shadow-indigo-500/20"
+                                                                >
+                                                                    <BookOpen size={18} />
+                                                                    Read Document
+                                                                </button>
+                                                                <a
+                                                                    href={attach.url}
+                                                                    download
+                                                                    target="_blank"
+                                                                    rel="noopener noreferrer"
+                                                                    onClick={(e) => e.stopPropagation()}
+                                                                    className="flex items-center gap-2 bg-[#0f172a] hover:bg-[#1e293b] text-white px-5 py-2.5 rounded-xl font-bold transition-all border border-[#334155]"
+                                                                >
+                                                                    <Download size={18} />
+                                                                    Download
+                                                                </a>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                     {attach.url.toLowerCase().endsWith('.pdf') && (
-                                                        <div className="mx-6 mb-6 h-[500px] border border-[#334155] rounded-2xl overflow-hidden bg-white">
+                                                        <div className="mx-6 mb-6 h-[500px] border border-[#334155] rounded-3xl overflow-hidden bg-white shadow-2xl">
                                                             <iframe
                                                                 src={`${attach.url}#toolbar=0`}
                                                                 className="w-full h-full"
@@ -355,7 +447,7 @@ export default function PostDetails() {
                                             {/* Common Footer / Info */}
                                             <div className="p-6 pt-0 flex flex-col gap-4">
                                                 {/* Summary Section */}
-                                                {(attach.type === 'document' || attach.type === 'link' || attach.type === 'photo') && (
+                                                {(attach.type === 'document' || attach.type === 'link') && (
                                                     <div className="mt-2">
                                                         {attachmentSummaries[attach.url] ? (
                                                             <div className="bg-[#0f172a] p-4 rounded-2xl border border-indigo-500/20 relative group/summary">
@@ -411,7 +503,7 @@ export default function PostDetails() {
                                                     </a>
                                                 </div>
                                             </div>
-                                        </div>
+                                        </motion.div>
                                     );
                                 })}
                             </div>
@@ -544,6 +636,106 @@ export default function PostDetails() {
                     </div>
                 </section>
             </main>
+            {/* Document Reader Modal */}
+            <AnimatePresence>
+                {readerOpen && (
+                    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-8">
+                        <motion.div
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            onClick={() => setReaderOpen(false)}
+                            className="absolute inset-0 bg-[#020617]/90 backdrop-blur-md"
+                        />
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                            className="relative w-full max-w-5xl h-full bg-[#0f172a] border border-[#1e293b] rounded-[2rem] shadow-2xl overflow-hidden flex flex-col"
+                        >
+                            {/* Modal Header */}
+                            <div className="p-6 border-b border-[#1e293b] flex items-center justify-between gap-4">
+                                <div className="flex items-center gap-4 min-w-0">
+                                    <div className="w-10 h-10 bg-indigo-500/10 rounded-xl flex items-center justify-center text-indigo-400 flex-shrink-0">
+                                        <BookOpen size={20} />
+                                    </div>
+                                    <div className="min-w-0">
+                                        <h3 className="font-bold text-lg truncate text-white">{readingTitle}</h3>
+                                        <p className="text-xs text-[#64748b] font-medium tracking-tight">Interactive Document Reader</p>
+                                    </div>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <button
+                                        onClick={() => setReaderOpen(false)}
+                                        className="p-2.5 bg-[#1e293b] hover:bg-[#334155] text-[#94a3b8] hover:text-white rounded-xl transition-all border border-[#334155]"
+                                    >
+                                        <X size={20} />
+                                    </button>
+                                </div>
+                            </div>
+
+                            {/* Modal Content */}
+                            <div className="flex-1 overflow-y-auto p-8 md:p-12 custom-scrollbar">
+                                {loadingReader ? (
+                                    <div className="h-full flex flex-col items-center justify-center gap-4 py-20">
+                                        <div className="relative">
+                                            <div className="w-16 h-16 border-4 border-indigo-500/20 border-t-indigo-500 rounded-full animate-spin"></div>
+                                            <div className="absolute inset-0 flex items-center justify-center">
+                                                <FileText size={24} className="text-indigo-400 animate-pulse" />
+                                            </div>
+                                        </div>
+                                        <div className="text-center">
+                                            <p className="text-xl font-bold text-white mb-1">Extracting Knowledge</p>
+                                            <p className="text-[#64748b]">Please wait while we process the document contents...</p>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="max-w-3xl mx-auto">
+                                        <article className="prose prose-invert prose-indigo max-w-none">
+                                            <div className="mb-8 p-6 bg-indigo-500/5 border border-indigo-500/10 rounded-2xl flex items-start gap-4">
+                                                <div className="p-2 bg-indigo-500/10 rounded-lg text-indigo-400 mt-1">
+                                                    <Sparkles size={16} />
+                                                </div>
+                                                <div>
+                                                    <p className="text-sm text-indigo-100/80 italic leading-relaxed">
+                                                        This content was extracted from the document using our AI-powered engine. Formatting may vary from the original file.
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <div className="whitespace-pre-wrap text-lg text-indigo-50 leading-relaxed font-serif tracking-tight">
+                                                {readingContent}
+                                            </div>
+                                        </article>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* Modal Footer */}
+                            <div className="p-6 border-t border-[#1e293b] bg-[#020617]/50 flex items-center justify-center">
+                                <p className="text-xs text-[#475569] font-medium uppercase tracking-[0.2em]">End of Document</p>
+                            </div>
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
+
+            <style dangerouslySetInnerHTML={{
+                __html: `
+                .custom-scrollbar::-webkit-scrollbar {
+                    width: 8px;
+                }
+                .custom-scrollbar::-webkit-scrollbar-track {
+                    background: transparent;
+                }
+                .custom-scrollbar::-webkit-scrollbar-thumb {
+                    background: #1e293b;
+                    border-radius: 20px;
+                    border: 2px solid #0f172a;
+                }
+                .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+                    background: #334155;
+                }
+            ` }} />
         </div>
     );
 }
