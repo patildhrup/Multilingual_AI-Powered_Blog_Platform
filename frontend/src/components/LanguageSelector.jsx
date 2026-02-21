@@ -2,11 +2,16 @@ import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Globe, ChevronDown, Check } from 'lucide-react';
 import { LANGUAGES } from '../lingo/dictionary';
+import { setLingoLocale, useLingoLocale } from 'lingo.dev/react/client';
 
 export default function LanguageSelector({ currentLocale, onChange, className = "", position = "bottom" }) {
     const [isOpen, setIsOpen] = useState(false);
     const dropdownRef = useRef(null);
-    const activeLang = LANGUAGES.find(l => l.code === (currentLocale || 'en')) || LANGUAGES[0];
+    const lingoLocale = useLingoLocale();
+
+    // Use passed-in currentLocale if provided, otherwise fall back to the lingo locale
+    const effectiveLocale = currentLocale || lingoLocale || 'en';
+    const activeLang = LANGUAGES.find(l => l.code === effectiveLocale) || LANGUAGES[0];
 
     useEffect(() => {
         const handleClickOutside = (event) => {
@@ -17,6 +22,14 @@ export default function LanguageSelector({ currentLocale, onChange, className = 
         document.addEventListener('mousedown', handleClickOutside);
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
+
+    const handleSelect = (code) => {
+        // Update lingo locale globally so all t() keys re-render
+        setLingoLocale(code);
+        // Also call the parent's onChange if provided
+        if (onChange) onChange(code);
+        setIsOpen(false);
+    };
 
     return (
         <div className={`relative ${className}`} ref={dropdownRef}>
@@ -64,18 +77,15 @@ export default function LanguageSelector({ currentLocale, onChange, className = 
                             <button
                                 key={lang.code}
                                 type="button"
-                                onClick={() => {
-                                    onChange(lang.code);
-                                    setIsOpen(false);
-                                }}
-                                className={`w-full flex items-center justify-between px-4 py-3 text-sm transition-all hover:bg-indigo-500/10 ${currentLocale === lang.code ? 'text-indigo-400 bg-indigo-500/5' : 'text-[#94a3b8] hover:text-white'
+                                onClick={() => handleSelect(lang.code)}
+                                className={`w-full flex items-center justify-between px-4 py-3 text-sm transition-all hover:bg-indigo-500/10 ${effectiveLocale === lang.code ? 'text-indigo-400 bg-indigo-500/5' : 'text-[#94a3b8] hover:text-white'
                                     }`}
                             >
                                 <div className="flex flex-col items-start text-left">
                                     <span className="font-bold">{lang.nativeName}</span>
                                     <span className="text-[10px] opacity-70 uppercase tracking-widest">{lang.name}</span>
                                 </div>
-                                {currentLocale === lang.code && (
+                                {effectiveLocale === lang.code && (
                                     <motion.div
                                         initial={{ scale: 0 }}
                                         animate={{ scale: 1 }}

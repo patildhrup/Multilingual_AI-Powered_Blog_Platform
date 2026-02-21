@@ -4,8 +4,11 @@ import { google } from 'googleapis';
 import { fileTypeFromBuffer } from 'file-type';
 import sharp from 'sharp';
 import dotenv from 'dotenv';
-import { PDFParse as pdf } from 'pdf-parse';
 import mammoth from 'mammoth';
+import { createRequire } from 'module';
+
+const require = createRequire(import.meta.url);
+const pdf = require('pdf-parse');
 
 dotenv.config();
 
@@ -105,9 +108,14 @@ async function extractFromImage(buffer) {
  * Main function to extract content based on type or URL
  */
 export async function extractContent(input, fileName = '') {
+    // Defensive check: if input is an object (common with Supabase getPublicUrl result)
+    if (input && typeof input === 'object' && input.publicUrl) {
+        input = input.publicUrl;
+    }
+
     try {
         // If it's a URL
-        if (input.startsWith('http')) {
+        if (typeof input === 'string' && input.startsWith('http')) {
             if (input.includes('youtube.com') || input.includes('youtu.be')) {
                 return await extractFromYouTube(input);
             }

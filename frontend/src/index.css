@@ -27,3 +27,24 @@
 ::-webkit-scrollbar-thumb:hover {
     @apply bg-[#334155];
 }
+
+/* TipTap Editor Styles */
+.tiptap {
+    @apply outline-none min-h-[40vh];
+}
+
+.tiptap p.is-editor-empty:first-child::before {
+    @apply text-[#1e293b] content-[attr(data-placeholder)] float-left h-0 pointer-events-none;
+}
+
+.tiptap p {
+    @apply mb-4;
+}
+
+.prose pre {
+    @apply bg-[#1e293b] border border-[#334155] rounded-xl p-4 my-6;
+}
+
+.prose code {
+    @apply text-indigo-400 font-mono bg-indigo-500/10 px-1.5 py-0.5 rounded-md;
+}

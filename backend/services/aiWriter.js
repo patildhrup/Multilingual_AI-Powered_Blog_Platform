@@ -105,3 +105,29 @@ export async function summarizeComments(comments, language = "English") {
   const response = await model.invoke(prompt);
   return response.content;
 }
+
+export async function getSuggestions(content, language = "English") {
+  const prompt = `
+  You are a helpful writing assistant. Analyze the following text and provide suggestions for improvement.
+  Focus on:
+  1. 3-5 Better synonyms for key words.
+  2. 1-2 Tips to improve the context or tone.
+  
+  Respond in ${language}.
+  Return strictly in JSON format:
+  {
+    "synonyms": ["word1 -> alternative1", "word2 -> alternative2"],
+    "tips": ["tip1", "tip2"]
+  }
+
+  Text: "${content}"
+  `;
+
+  const response = await model.invoke(prompt);
+  try {
+    return JSON.parse(response.content);
+  } catch (e) {
+    const cleaned = response.content.replace(/```json|```/g, '').trim();
+    return JSON.parse(cleaned);
+  }
+}

@@ -1,21 +1,39 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { useLingo, useLingoLocale, setLingoLocale } from "lingo.dev/react/client";
 import { Send, ArrowLeft, Type, AlignLeft, Languages, Image, Video, Link, FileText, Paperclip, X } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import LanguageSelector from '../components/LanguageSelector';
+import Grammy from '../components/Grammy';
+import { useEditor, EditorContent } from '@tiptap/react';
+import StarterKit from '@tiptap/starter-kit';
+import Placeholder from '@tiptap/extension-placeholder';
 
 export default function BlogEditor() {
     const navigate = useNavigate();
     const { dictionary } = useLingo();
     const locale = useLingoLocale();
     const setLingoLocaleFn = setLingoLocale;
-    const { user, loading: authLoading } = useAuth();
+    const { user, authLoading } = useAuth();
+    const contentRef = useRef(null);
 
     const [title, setTitle] = useState('');
     const [content, setContent] = useState('');
     const [baseLang, setBaseLang] = useState('en');
+
+    const editor = useEditor({
+        extensions: [
+            StarterKit,
+            Placeholder.configure({
+                placeholder: 'Write your story...',
+            }),
+        ],
+        content: '',
+        onUpdate: ({ editor }) => {
+            setContent(editor.getHTML());
+        },
+    });
     const [loading, setLoading] = useState(false);
     const [attachments, setAttachments] = useState([]);
     const [showLinkInput, setShowLinkInput] = useState(false);
@@ -156,13 +174,11 @@ export default function BlogEditor() {
                         />
                     </div>
 
-                    <div className="relative group">
+                    <div className="relative group min-h-[40vh]">
                         <AlignLeft className="absolute -left-12 top-2 text-[#334155] group-focus-within:text-indigo-500 transition-colors hidden md:block" size={32} />
-                        <textarea
-                            placeholder={t("editor.contentPlaceholder")}
-                            value={content}
-                            onChange={(e) => setContent(e.target.value)}
-                            className="w-full bg-transparent border-none text-xl md:text-2xl leading-relaxed outline-none min-h-[40vh] resize-none placeholder-[#1e293b] focus:placeholder-[#334155] transition-all"
+                        <EditorContent
+                            editor={editor}
+                            className="prose prose-invert max-w-none text-xl md:text-2xl leading-relaxed outline-none focus:outline-none"
                         />
                     </div>
 
@@ -249,6 +265,7 @@ export default function BlogEditor() {
                         </label>
                     </div>
                 </form>
+
             </main>
 
             <div className="fixed bottom-8 right-8 text-[#334155] text-xs font-mono select-none uppercase tracking-[0.2em]">

@@ -1,4 +1,5 @@
 import { useLingo, useLingoLocale, setLingoLocale } from "lingo.dev/react/client";
+import LanguageSelector from '../components/LanguageSelector';
 
 const Home = () => {
     const { dictionary } = useLingo();
@@ -34,14 +35,10 @@ const Home = () => {
                         </ul>
 
                         {/* 🌍 Language Selector */}
-                        <select
-                            value={locale || ""}
-                            onChange={(e) => setLocale(e.target.value)}
-                            className="border rounded-md px-2 py-1 text-sm focus:outline-none"
-                        >
-                            <option value="en">EN</option>
-                            <option value="hi">HI</option>
-                        </select>
+                        <LanguageSelector
+                            currentLocale={locale}
+                            className="w-40"
+                        />
                     </div>
 
                 </div>

@@ -1,16 +1,19 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import { supabase } from '../lib/supabase';
 import { useLingo, useLingoLocale, setLingoLocale } from "lingo.dev/react/client";
+import {
+    ArrowLeft, MessageSquare, ThumbsUp, Share2, Send, Sparkles, Wand2,
+    Languages, BookOpen, Download, FileText, Link, Globe, Trash2, X,
+    Play, Volume2, Maximize2, LogIn, LogOut, User, Loader2, Paperclip
+} from 'lucide-react';
+import { useAuth } from '../context/AuthContext';
+import LanguageSelector from '../components/LanguageSelector';
+import AuthModal from '../components/AuthModal';
+import Grammy from '../components/Grammy';
 import { translateContent } from '../lib/lingo';
 import { generateSummary, summarizeComments } from '../lib/ai';
-import { useAuth } from '../context/AuthContext';
-import AuthModal from '../components/AuthModal';
-import {
-    ArrowLeft, MessageSquare, Sparkles, User, Send, Globe, LogIn, LogOut,
-    Image, Video, Link, FileText, X, Loader2, Paperclip, BookOpen, Download
-} from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
 
 
 export default function PostDetails() {
@@ -178,6 +181,11 @@ export default function PostDetails() {
             });
 
             const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.message || data.error || 'Failed to extract content');
+            }
+
             if (data.content) {
                 setReadingContent(data.content);
             } else {
@@ -185,7 +193,7 @@ export default function PostDetails() {
             }
         } catch (error) {
             console.error('Extraction failed:', error);
-            setReadingContent('Failed to load document content. Please try again or download the file.');
+            setReadingContent(`Failed to load document content: ${error.message}. Please ensure the document is public and try again.`);
         } finally {
             setLoadingReader(false);
         }
@@ -367,82 +375,86 @@ export default function PostDetails() {
                                                         frameBorder="0"
                                                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                                                         allowFullScreen
-                                                    ></iframe>
-                                                </div>
+                                                    ></iframe >
+                                                </div >
                                             )}
 
                                             {/* Link Card UI for generic links / doc links */}
-                                            {attach.type === 'link' && !ytId && (
-                                                <div
-                                                    className={`p-6 flex items-start gap-4 transition-all ${isDocLink ? 'cursor-pointer hover:bg-indigo-500/5' : ''}`}
-                                                    onClick={() => isDocLink && handleReadDocument(attach)}
-                                                >
-                                                    <div className={`w-16 h-16 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-lg border ${isDocLink ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-blue-500/10 text-blue-400 border-blue-500/20'
-                                                        }`}>
-                                                        {isDocLink ? <FileText size={32} /> : <Link size={32} />}
+                                            {
+                                                attach.type === 'link' && !ytId && (
+                                                    <div
+                                                        className={`p-6 flex items-start gap-4 transition-all ${isDocLink ? 'cursor-pointer hover:bg-indigo-500/5' : ''}`}
+                                                        onClick={() => isDocLink && handleReadDocument(attach)}
+                                                    >
+                                                        <div className={`w-16 h-16 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-lg border ${isDocLink ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-blue-500/10 text-blue-400 border-blue-500/20'
+                                                            }`}>
+                                                            {isDocLink ? <FileText size={32} /> : <Link size={32} />}
+                                                        </div>
+                                                        <div className="flex-1 min-w-0">
+                                                            <h5 className="font-bold text-xl mb-1 truncate text-white">{attach.name}</h5>
+                                                            <p className={`text-sm break-all mb-2 ${isDocLink ? 'text-emerald-400/70' : 'text-[#64748b]'}`}>{attach.url}</p>
+                                                            {isDocLink && (
+                                                                <span className="text-[10px] bg-indigo-500/20 text-indigo-400 px-2 py-0.5 rounded-md font-black uppercase tracking-[0.1em] flex items-center gap-1 w-fit">
+                                                                    <BookOpen size={10} /> Read Available
+                                                                </span>
+                                                            )}
+                                                        </div>
                                                     </div>
-                                                    <div className="flex-1 min-w-0">
-                                                        <h5 className="font-bold text-xl mb-1 truncate text-white">{attach.name}</h5>
-                                                        <p className={`text-sm break-all mb-2 ${isDocLink ? 'text-emerald-400/70' : 'text-[#64748b]'}`}>{attach.url}</p>
-                                                        {isDocLink && (
-                                                            <span className="text-[10px] bg-indigo-500/20 text-indigo-400 px-2 py-0.5 rounded-md font-black uppercase tracking-[0.1em] flex items-center gap-1 w-fit">
-                                                                <BookOpen size={10} /> Read Available
-                                                            </span>
-                                                        )}
-                                                    </div>
-                                                </div>
-                                            )}
+                                                )
+                                            }
 
                                             {/* Document UI */}
-                                            {attach.type === 'document' && (
-                                                <div className="flex flex-col">
-                                                    <div
-                                                        className="p-6 flex flex-col md:flex-row items-center md:items-start gap-6 cursor-pointer hover:bg-indigo-500/5 transition-all"
-                                                        onClick={() => handleReadDocument(attach)}
-                                                    >
-                                                        <div className="w-16 h-16 bg-emerald-500/10 rounded-2xl flex items-center justify-center text-emerald-400 flex-shrink-0 shadow-lg border border-emerald-500/20">
-                                                            <FileText size={32} />
-                                                        </div>
-                                                        <div className="flex-1 min-w-0 text-center md:text-left">
-                                                            <h5 className="font-bold text-xl mb-1 truncate text-white">{attach.name}</h5>
-                                                            <p className="text-xs text-[#64748b] uppercase tracking-widest font-black mb-4">Document Asset</p>
+                                            {
+                                                attach.type === 'document' && (
+                                                    <div className="flex flex-col">
+                                                        <div
+                                                            className="p-6 flex flex-col md:flex-row items-center md:items-start gap-6 cursor-pointer hover:bg-indigo-500/5 transition-all"
+                                                            onClick={() => handleReadDocument(attach)}
+                                                        >
+                                                            <div className="w-16 h-16 bg-emerald-500/10 rounded-2xl flex items-center justify-center text-emerald-400 flex-shrink-0 shadow-lg border border-emerald-500/20">
+                                                                <FileText size={32} />
+                                                            </div>
+                                                            <div className="flex-1 min-w-0 text-center md:text-left">
+                                                                <h5 className="font-bold text-xl mb-1 truncate text-white">{attach.name}</h5>
+                                                                <p className="text-xs text-[#64748b] uppercase tracking-widest font-black mb-4">Document Asset</p>
 
-                                                            <div className="flex flex-wrap items-center justify-center md:justify-start gap-3">
-                                                                <button
-                                                                    onClick={(e) => {
-                                                                        e.stopPropagation();
-                                                                        handleReadDocument(attach);
-                                                                    }}
-                                                                    className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-xl font-bold transition-all shadow-lg shadow-indigo-500/20"
-                                                                >
-                                                                    <BookOpen size={18} />
-                                                                    Read Document
-                                                                </button>
-                                                                <a
-                                                                    href={attach.url}
-                                                                    download
-                                                                    target="_blank"
-                                                                    rel="noopener noreferrer"
-                                                                    onClick={(e) => e.stopPropagation()}
-                                                                    className="flex items-center gap-2 bg-[#0f172a] hover:bg-[#1e293b] text-white px-5 py-2.5 rounded-xl font-bold transition-all border border-[#334155]"
-                                                                >
-                                                                    <Download size={18} />
-                                                                    Download
-                                                                </a>
+                                                                <div className="flex flex-wrap items-center justify-center md:justify-start gap-3">
+                                                                    <button
+                                                                        onClick={(e) => {
+                                                                            e.stopPropagation();
+                                                                            handleReadDocument(attach);
+                                                                        }}
+                                                                        className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-xl font-bold transition-all shadow-lg shadow-indigo-500/20"
+                                                                    >
+                                                                        <BookOpen size={18} />
+                                                                        Read Document
+                                                                    </button>
+                                                                    <a
+                                                                        href={attach.url}
+                                                                        download
+                                                                        target="_blank"
+                                                                        rel="noopener noreferrer"
+                                                                        onClick={(e) => e.stopPropagation()}
+                                                                        className="flex items-center gap-2 bg-[#0f172a] hover:bg-[#1e293b] text-white px-5 py-2.5 rounded-xl font-bold transition-all border border-[#334155]"
+                                                                    >
+                                                                        <Download size={18} />
+                                                                        Download
+                                                                    </a>
+                                                                </div>
                                                             </div>
                                                         </div>
+                                                        {attach.url.toLowerCase().endsWith('.pdf') && (
+                                                            <div className="mx-6 mb-6 h-[500px] border border-[#334155] rounded-3xl overflow-hidden bg-white shadow-2xl">
+                                                                <iframe
+                                                                    src={`${attach.url}#toolbar=0`}
+                                                                    className="w-full h-full"
+                                                                    title="PDF Document"
+                                                                ></iframe>
+                                                            </div>
+                                                        )}
                                                     </div>
-                                                    {attach.url.toLowerCase().endsWith('.pdf') && (
-                                                        <div className="mx-6 mb-6 h-[500px] border border-[#334155] rounded-3xl overflow-hidden bg-white shadow-2xl">
-                                                            <iframe
-                                                                src={`${attach.url}#toolbar=0`}
-                                                                className="w-full h-full"
-                                                                title="PDF Document"
-                                                            ></iframe>
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            )}
+                                                )
+                                            }
 
                                             {/* Common Footer / Info */}
                                             <div className="p-6 pt-0 flex flex-col gap-4">
@@ -503,11 +515,11 @@ export default function PostDetails() {
                                                     </a>
                                                 </div>
                                             </div>
-                                        </motion.div>
+                                        </motion.div >
                                     );
                                 })}
-                            </div>
-                        </div>
+                            </div >
+                        </div >
                     )}
 
                     {/* AI Post Summary Section */}
@@ -541,10 +553,10 @@ export default function PostDetails() {
                             )}
                         </AnimatePresence>
                     </div>
-                </article>
+                </article >
 
                 {/* AI Feedback Section */}
-                <section className="mt-20 p-8 rounded-3xl bg-indigo-600/10 border border-indigo-500/20 relative overflow-hidden">
+                < section className="mt-20 p-8 rounded-3xl bg-indigo-600/10 border border-indigo-500/20 relative overflow-hidden" >
                     <div className="absolute top-0 right-0 p-4 opacity-10">
                         <Sparkles size={100} className="text-indigo-400" />
                     </div>
@@ -575,10 +587,10 @@ export default function PostDetails() {
                         )}
                     </AnimatePresence>
                     {!feedbackSummary && <p className="text-[#94a3b8] italic">Click summarize to get an AI-powered overview of what readers think in {currentLocale}.</p>}
-                </section>
+                </section >
 
                 {/* Comments Section */}
-                <section className="mt-20">
+                < section className="mt-20" >
                     <h3 className="text-3xl font-bold mb-10 flex items-center gap-3">
                         <MessageSquare className="text-indigo-400" />
                         Responses ({comments.length})
@@ -634,10 +646,10 @@ export default function PostDetails() {
                             <CommentItem key={comment.id} comment={comment} targetLocale={currentLocale} />
                         ))}
                     </div>
-                </section>
-            </main>
+                </section >
+            </main >
             {/* Document Reader Modal */}
-            <AnimatePresence>
+            < AnimatePresence >
                 {readerOpen && (
                     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 md:p-8">
                         <motion.div
@@ -717,7 +729,7 @@ export default function PostDetails() {
                         </motion.div>
                     </div>
                 )}
-            </AnimatePresence>
+            </AnimatePresence >
 
             <style dangerouslySetInnerHTML={{
                 __html: `
@@ -736,6 +748,7 @@ export default function PostDetails() {
                     background: #334155;
                 }
             ` }} />
+            <Grammy mode="viewer" baseLang={currentLocale} />
         </div>
     );
 }

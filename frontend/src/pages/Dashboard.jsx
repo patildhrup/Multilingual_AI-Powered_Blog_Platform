@@ -16,6 +16,10 @@ import {
     Edit2, Trash2, Mic, Square, Play, Volume2,
     Image, Video, Link, Paperclip, X
 } from 'lucide-react';
+import Grammy from '../components/Grammy';
+import { useEditor, EditorContent } from '@tiptap/react';
+import StarterKit from '@tiptap/starter-kit';
+import Placeholder from '@tiptap/extension-placeholder';
 import { motion, AnimatePresence } from 'framer-motion';
 import LanguageSelector from '../components/LanguageSelector';
 
@@ -56,6 +60,26 @@ export default function Dashboard() {
     const [readingContent, setReadingContent] = useState('');
     const [readingTitle, setReadingTitle] = useState('');
     const [loadingReader, setLoadingReader] = useState(false);
+
+    const editor = useEditor({
+        extensions: [
+            StarterKit,
+            Placeholder.configure({
+                placeholder: 'Write your story...',
+            }),
+        ],
+        content: content,
+        onUpdate: ({ editor }) => {
+            setContent(editor.getHTML());
+        },
+    });
+
+    // Update editor content if state changes (e.g. when editing a post)
+    useEffect(() => {
+        if (editor && content !== editor.getHTML()) {
+            editor.commands.setContent(content);
+        }
+    }, [isEditing, editingPostId]); // Only sync when switching posts/modes to avoid cycles
 
     const t = (key) => dictionary?.[key] || key;
 
@@ -207,6 +231,11 @@ export default function Dashboard() {
             });
 
             const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.message || data.error || 'Failed to extract content');
+            }
+
             if (data.content) {
                 setReadingContent(data.content);
             } else {
@@ -214,7 +243,7 @@ export default function Dashboard() {
             }
         } catch (error) {
             console.error('Extraction failed:', error);
-            setReadingContent('Failed to load document content. Please try again or download the file.');
+            setReadingContent(`Failed to load document content: ${error.message}. Please ensure the document is public and try again.`);
         } finally {
             setLoadingReader(false);
         }
@@ -423,11 +452,16 @@ export default function Dashboard() {
                 <main className="p-6 pb-32">
                     {activeView === 'create' && (
                         <CreatePostView
-                            title={title} setTitle={setTitle}
-                            content={content} setContent={setContent}
-                            baseLang={baseLang} setBaseLang={setBaseLang}
-                            publishing={publishing} handlePublish={handlePublish}
-                            aiLoading={aiLoading} aiResults={aiResults}
+                            title={title}
+                            setTitle={setTitle}
+                            content={content}
+                            setContent={setContent}
+                            baseLang={baseLang}
+                            setBaseLang={setBaseLang}
+                            publishing={publishing}
+                            handlePublish={handlePublish}
+                            aiLoading={aiLoading}
+                            aiResults={aiResults}
                             handleAI={handleAI}
                             attachments={attachments}
                             setAttachments={setAttachments}
@@ -443,9 +477,10 @@ export default function Dashboard() {
                                 setTitle('');
                                 setContent('');
                                 setAttachments([]);
-                                setActiveView('myposts');
+                                setActiveView('posts');
                             }}
                             t={t}
+                            editor={editor}
                         />
                     )}
 
@@ -565,6 +600,15 @@ export default function Dashboard() {
                     </motion.div>
                 )}
             </AnimatePresence>
+            <Grammy
+                mode={activeView === 'create' ? 'writer' : 'viewer'}
+                baseLang={baseLang}
+                onReplace={(newText) => {
+                    if (editor) {
+                        editor.commands.insertContent(newText);
+                    }
+                }}
+            />
         </div>
     );
 }
@@ -591,7 +635,7 @@ function CreatePostView({
     attachments, setAttachments, handleFileUpload,
     showLinkInput, setShowLinkInput, linkUrl, setLinkUrl,
     isEditing, onCancel,
-    t
+    t, editor
 }) {
     const addLink = () => {
         if (linkUrl) {
@@ -651,13 +695,11 @@ function CreatePostView({
                         className="w-full bg-[#0f172a] border border-[#334155] rounded-2xl py-4 pl-12 pr-4 text-2xl font-bold outline-none focus:ring-2 focus:ring-indigo-500 transition-all placeholder-[#334155]"
                     />
                 </div>
-                <div className="relative">
+                <div className="relative min-h-[250px]">
                     <AlignLeft className="absolute left-4 top-4 text-[#334155]" size={20} />
-                    <textarea
-                        placeholder={t("editor.contentPlaceholder")}
-                        value={content}
-                        onChange={(e) => setContent(e.target.value)}
-                        className="w-full bg-[#0f172a] border border-[#334155] rounded-2xl py-4 pl-12 pr-4 text-lg leading-relaxed outline-none min-h-[250px] resize-none focus:ring-2 focus:ring-indigo-500 transition-all placeholder-[#334155]"
+                    <EditorContent
+                        editor={editor}
+                        className="prose prose-invert max-w-none w-full bg-[#0f172a] border border-[#334155] rounded-2xl py-4 pl-12 pr-4 text-lg leading-relaxed outline-none focus:ring-2 focus:ring-indigo-500 transition-all placeholder-[#334155]"
                     />
                 </div>
 

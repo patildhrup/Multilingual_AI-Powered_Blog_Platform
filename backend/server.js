@@ -4,7 +4,7 @@ import dotenv from 'dotenv';
 import { LingoDotDevEngine } from 'lingo.dev/sdk';
 import { ChatOpenAI } from '@langchain/openai';
 import { SystemMessage, HumanMessage, AIMessage } from '@langchain/core/messages';
-import { generateBlogContent, improveContent, summarizeComments, summarizeDocument } from './services/aiWriter.js';
+import { generateBlogContent, improveContent, summarizeComments, summarizeDocument, getSuggestions } from './services/aiWriter.js';
 import { extractContent } from './services/contentExtractor.js';
 
 dotenv.config();
@@ -242,6 +242,32 @@ app.post('/api/summarize-comments', async (req, res) => {
         console.error('AI Summarization error:', error);
         res.status(500).json({
             error: 'AI Summarization failed',
+            message: error.message
+        });
+    }
+});
+
+app.post('/api/get-suggestions', async (req, res) => {
+    try {
+        const { content, locale } = req.body;
+        console.log('Suggestions request:', { locale });
+
+        if (!openRouterApiKey) {
+            return res.status(500).json({ error: 'AI Writing Assistant not configured' });
+        }
+
+        const langName = {
+            en: 'English', hi: 'Hindi', ar: 'Arabic',
+            fr: 'French', de: 'German', zh: 'Chinese'
+        }[locale] || 'English';
+
+        const result = await getSuggestions(content, langName);
+        res.json(result);
+
+    } catch (error) {
+        console.error('AI Suggestions error:', error);
+        res.status(500).json({
+            error: 'AI Suggestions failed',
             message: error.message
         });
     }

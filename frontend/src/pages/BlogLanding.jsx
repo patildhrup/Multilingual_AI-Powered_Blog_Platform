@@ -2,10 +2,11 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { translateContent } from '../lib/lingo';
 import { useState, useEffect } from 'react';
-import { useLingo, useLingoLocale, setLingoLocale } from "lingo.dev/react/client";
-import { Globe, PenTool, BookOpen, LogIn, LogOut, User } from 'lucide-react';
+import { useLingo, useLingoLocale } from "lingo.dev/react/client";
+import { PenTool, BookOpen, LogIn, LogOut, User } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import AuthModal from '../components/AuthModal';
+import LanguageSelector from '../components/LanguageSelector';
 
 export default function BlogLanding() {
     const navigate = useNavigate();
@@ -14,7 +15,6 @@ export default function BlogLanding() {
     const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
     const { dictionary } = useLingo();
     const locale = useLingoLocale();
-    const setLocale = setLingoLocale;
     const { user, signOut } = useAuth();
 
     const t = (key) => {
@@ -106,16 +106,10 @@ export default function BlogLanding() {
                     </div>
 
                     <div className="flex items-center gap-6">
-                        <select
-                            value={locale || ""}
-                            onChange={(e) => setLocale(e.target.value)}
-                            className="bg-[#1e293b] border border-[#334155] rounded-md px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all font-medium"
-                        >
-                            <option value="en">English</option>
-                            <option value="hi">Hindi (हिंदी)</option>
-                            <option value="ja">Japanese (日本語)</option>
-                            <option value="fr">French (Français)</option>
-                        </select>
+                        <LanguageSelector
+                            currentLocale={locale}
+                            className="w-44"
+                        />
 
                         {user ? (
                             <div className="flex items-center gap-4">
