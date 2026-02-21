@@ -166,22 +166,22 @@ export default function Grammy({ mode = 'viewer', onReplace, baseLang = 'en' }) 
                         top: position.y,
                         zIndex: 1000,
                     }}
-                    className="w-72 bg-[#1e293b]/95 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl overflow-visible text-white cursor-default"
+                    className="w-72 bg-white/90 backdrop-blur-2xl border border-slate-200 rounded-2xl shadow-2xl overflow-visible text-slate-800 cursor-default"
                     onMouseUp={(e) => e.stopPropagation()}
                     onClick={(e) => e.stopPropagation()}
                 >
                     {/* Header/Grabber */}
-                    <div className="bg-white/5 px-3 py-2 flex items-center justify-between border-b border-white/5 cursor-move rounded-t-2xl">
+                    <div className="bg-slate-50 px-3 py-2 flex items-center justify-between border-b border-slate-100 cursor-move rounded-t-2xl">
                         <div className="flex items-center gap-2">
-                            <Sparkles size={14} className="text-indigo-400" />
-                            <span className="text-[10px] font-black uppercase tracking-widest opacity-50">Grammy AI</span>
+                            <Sparkles size={14} className="text-indigo-600" />
+                            <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Grammy AI</span>
                         </div>
                         <div className="flex items-center gap-2">
                             <GripHorizontal size={14} className="opacity-20" />
                             <button
                                 onMouseDown={(e) => e.stopPropagation()}
                                 onClick={handleClose}
-                                className="w-5 h-5 flex items-center justify-center rounded-full hover:bg-red-500/20 hover:text-red-400 transition-all"
+                                className="w-5 h-5 flex items-center justify-center rounded-full hover:bg-red-50 text-slate-400 hover:text-red-500 transition-all"
                             >
                                 <X size={13} />
                             </button>
@@ -191,38 +191,38 @@ export default function Grammy({ mode = 'viewer', onReplace, baseLang = 'en' }) 
                     <div className="p-4">
                         {activeTab === 'options' && (
                             <div className="space-y-4">
-                                <div className="p-2 bg-black/20 rounded-lg text-[11px] italic opacity-70 line-clamp-2 border border-white/5">
+                                <div className="p-2 bg-slate-50 rounded-lg text-[11px] italic text-slate-500 line-clamp-2 border border-slate-100">
                                     "{selectedText}"
                                 </div>
 
                                 <div className="grid grid-cols-3 gap-2">
-                                    <button onClick={handleRead} className="flex flex-col items-center gap-1.5 p-2 rounded-xl bg-white/5 hover:bg-white/10 transition-all group">
-                                        <Volume2 size={18} className="text-blue-400 group-hover:scale-110 transition-transform" />
-                                        <span className="text-[9px] font-bold uppercase">Read</span>
+                                    <button onClick={handleRead} className="flex flex-col items-center gap-1.5 p-2 rounded-xl bg-slate-50 hover:bg-indigo-50 transition-all group border border-slate-100">
+                                        <Volume2 size={18} className="text-blue-600 group-hover:scale-110 transition-transform" />
+                                        <span className="text-[9px] font-bold uppercase text-slate-600">Read</span>
                                     </button>
-                                    <button onClick={handleImprove} className="flex flex-col items-center gap-1.5 p-2 rounded-xl bg-white/5 hover:bg-white/10 transition-all group">
-                                        <Languages size={18} className="text-purple-400 group-hover:scale-110 transition-transform" />
-                                        <span className="text-[9px] font-bold uppercase">Translate</span>
+                                    <button onClick={handleImprove} className="flex flex-col items-center gap-1.5 p-2 rounded-xl bg-slate-50 hover:bg-indigo-50 transition-all group border border-slate-100">
+                                        <Languages size={18} className="text-purple-600 group-hover:scale-110 transition-transform" />
+                                        <span className="text-[9px] font-bold uppercase text-slate-600">Translate</span>
                                     </button>
-                                    <button onClick={handleSuggest} className="flex flex-col items-center gap-1.5 p-2 rounded-xl bg-white/5 hover:bg-white/10 transition-all group">
-                                        <Sparkles size={18} className="text-emerald-400 group-hover:scale-110 transition-transform" />
-                                        <span className="text-[9px] font-bold uppercase">Suggest</span>
+                                    <button onClick={handleSuggest} className="flex flex-col items-center gap-1.5 p-2 rounded-xl bg-slate-50 hover:bg-indigo-50 transition-all group border border-slate-100">
+                                        <Sparkles size={18} className="text-emerald-600 group-hover:scale-110 transition-transform" />
+                                        <span className="text-[9px] font-bold uppercase text-slate-600">Suggest</span>
                                     </button>
                                 </div>
 
                                 {/* Beautiful Language Picker */}
-                                <div className="relative pt-2 border-t border-white/5" ref={langRef}>
+                                <div className="relative pt-2 border-t border-slate-100" ref={langRef}>
                                     <button
                                         type="button"
                                         onClick={() => setLangOpen(v => !v)}
-                                        className="w-full flex items-center justify-between gap-2 px-2.5 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 transition-all"
+                                        className="w-full flex items-center justify-between gap-2 px-2.5 py-1.5 rounded-xl bg-slate-50 hover:bg-slate-100 transition-all border border-slate-100"
                                     >
                                         <div className="flex items-center gap-2">
-                                            <Languages size={12} className="text-indigo-400 opacity-70" />
-                                            <span className="text-[10px] font-bold">{activeLang.nativeName}</span>
-                                            <span className="text-[9px] opacity-40 uppercase tracking-wider">{activeLang.name}</span>
+                                            <Languages size={12} className="text-indigo-600 opacity-70" />
+                                            <span className="text-[10px] font-bold text-slate-800">{activeLang.nativeName}</span>
+                                            <span className="text-[9px] text-slate-400 uppercase tracking-wider">{activeLang.name}</span>
                                         </div>
-                                        <ChevronDown size={11} className={`opacity-40 transition-transform duration-200 ${langOpen ? 'rotate-180' : ''}`} />
+                                        <ChevronDown size={11} className={`text-slate-400 transition-transform duration-200 ${langOpen ? 'rotate-180' : ''}`} />
                                     </button>
 
                                     <AnimatePresence>
@@ -232,7 +232,7 @@ export default function Grammy({ mode = 'viewer', onReplace, baseLang = 'en' }) 
                                                 animate={{ opacity: 1, y: 0, scale: 1 }}
                                                 exit={{ opacity: 0, y: -4, scale: 0.97 }}
                                                 transition={{ type: 'spring', damping: 20, stiffness: 350 }}
-                                                className="grammy-lang-scroll absolute bottom-full mb-2 left-0 right-0 bg-[#0f172a] border border-white/10 rounded-xl shadow-2xl z-[1100] overflow-y-auto max-h-52"
+                                                className="grammy-lang-scroll absolute bottom-full mb-2 left-0 right-0 bg-white border border-slate-200 rounded-xl shadow-2xl z-[1100] overflow-y-auto max-h-52"
                                                 style={{
                                                     scrollbarWidth: 'thin',
                                                     scrollbarColor: '#4f46e5 transparent',
@@ -249,14 +249,14 @@ export default function Grammy({ mode = 'viewer', onReplace, baseLang = 'en' }) 
                                                         key={lang.code}
                                                         type="button"
                                                         onClick={() => { setTargetLang(lang.code); setLangOpen(false); }}
-                                                        className={`w-full flex items-center justify-between px-3 py-2 text-left transition-all hover:bg-indigo-500/10 ${targetLang === lang.code ? 'text-indigo-400 bg-indigo-500/5' : 'text-[#94a3b8] hover:text-white'}`}
+                                                        className={`w-full flex items-center justify-between px-3 py-2 text-left transition-all hover:bg-indigo-50 ${targetLang === lang.code ? 'text-indigo-600 bg-indigo-50' : 'text-slate-600 hover:text-slate-900'}`}
                                                     >
                                                         <div className="flex flex-col">
                                                             <span className="text-[11px] font-bold">{lang.nativeName}</span>
-                                                            <span className="text-[9px] opacity-50 uppercase tracking-wider">{lang.name}</span>
+                                                            <span className="text-[9px] text-slate-400 uppercase tracking-wider">{lang.name}</span>
                                                         </div>
                                                         {targetLang === lang.code && (
-                                                            <Check size={11} strokeWidth={3} className="text-indigo-400" />
+                                                            <Check size={11} strokeWidth={3} className="text-indigo-600" />
                                                         )}
                                                     </button>
                                                 ))}
@@ -278,7 +278,7 @@ export default function Grammy({ mode = 'viewer', onReplace, baseLang = 'en' }) 
                                     <>
                                         {activeTab === 'result' && (
                                             <div className="space-y-3 animate-in fade-in slide-in-from-bottom-2">
-                                                <div className="p-3 bg-indigo-500/10 border border-indigo-500/20 rounded-xl text-xs leading-relaxed max-h-40 overflow-y-auto">
+                                                <div className="p-3 bg-indigo-50 border border-indigo-100 rounded-xl text-xs leading-relaxed max-h-40 overflow-y-auto text-slate-700">
                                                     {aiResult?.text}
                                                 </div>
                                                 {mode === 'writer' && (
@@ -299,7 +299,7 @@ export default function Grammy({ mode = 'viewer', onReplace, baseLang = 'en' }) 
                                                         <span className="text-[9px] font-black uppercase tracking-widest opacity-40">Synonyms</span>
                                                         <div className="flex flex-wrap gap-1.5">
                                                             {aiResult.synonyms.map((s, i) => (
-                                                                <span key={i} className="text-[10px] bg-emerald-500/10 py-1 px-2 rounded-lg border border-emerald-500/20 text-emerald-300">
+                                                                <span key={i} className="text-[10px] bg-emerald-50 py-1 px-2 rounded-lg border border-emerald-100 text-emerald-700 font-medium">
                                                                     {s}
                                                                 </span>
                                                             ))}
@@ -311,8 +311,8 @@ export default function Grammy({ mode = 'viewer', onReplace, baseLang = 'en' }) 
                                                         <span className="text-[9px] font-black uppercase tracking-widest opacity-40">Writing Tips</span>
                                                         <div className="space-y-1.5">
                                                             {aiResult.tips.map((t, i) => (
-                                                                <div key={i} className="flex gap-2 text-[10px] opacity-80 leading-normal">
-                                                                    <ArrowRight size={10} className="mt-0.5 text-indigo-400 flex-shrink-0" />
+                                                                <div key={i} className="flex gap-2 text-[10px] text-slate-600 leading-normal">
+                                                                    <ArrowRight size={10} className="mt-0.5 text-indigo-600 flex-shrink-0" />
                                                                     {t}
                                                                 </div>
                                                             ))}
@@ -324,7 +324,7 @@ export default function Grammy({ mode = 'viewer', onReplace, baseLang = 'en' }) 
 
                                         <button
                                             onClick={() => setActiveTab('options')}
-                                            className="w-full p-2 rounded-xl bg-white/5 hover:bg-white/10 text-[9px] font-bold uppercase transition-all"
+                                            className="w-full p-2 rounded-xl bg-slate-50 hover:bg-slate-100 text-[9px] font-bold uppercase transition-all text-slate-400 hover:text-slate-600 border border-slate-100"
                                         >
                                             Back to Options
                                         </button>

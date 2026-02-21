@@ -353,14 +353,14 @@ export default function Dashboard() {
 
     if (authLoading) {
         return (
-            <div className="min-h-screen bg-[#0f172a] flex items-center justify-center">
-                <Loader2 className="animate-spin text-indigo-500" size={32} />
+            <div className="min-h-screen bg-[#FAFAF9] flex items-center justify-center">
+                <Loader2 className="animate-spin text-indigo-600" size={32} />
             </div>
         );
     }
 
     return (
-        <div className="min-h-screen bg-[#0f172a] text-[#f8fafc] font-sans flex">
+        <div className="min-h-screen bg-[#FAFAF9] text-black font-sans flex text-slate-800">
             <AnimatePresence>
                 {sidebarOpen && (
                     <motion.aside
@@ -368,9 +368,9 @@ export default function Dashboard() {
                         animate={{ x: 0 }}
                         exit={{ x: -280 }}
                         transition={{ type: 'spring', damping: 25, stiffness: 200 }}
-                        className="w-[280px] min-h-screen bg-[#0a0f1e] border-r border-[#1e293b] flex flex-col fixed left-0 top-0 z-40"
+                        className="w-[280px] min-h-screen bg-white border-r border-slate-200 flex flex-col fixed left-0 top-0 z-40 shadow-xl"
                     >
-                        <div className="p-6 border-b border-[#1e293b]">
+                        <div className="p-6 border-b border-slate-100">
                             <div className="flex items-center gap-3 cursor-pointer" onClick={() => navigate('/')}>
                                 <div className="w-9 h-9 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center">
                                     <BookOpen className="text-white" size={18} />
@@ -379,14 +379,14 @@ export default function Dashboard() {
                             </div>
                         </div>
 
-                        <div className="p-4 border-b border-[#1e293b]">
-                            <div className="flex items-center gap-3 bg-[#1e293b]/50 rounded-xl p-3">
-                                <div className="w-9 h-9 bg-indigo-500/20 rounded-full flex items-center justify-center">
-                                    <User size={16} className="text-indigo-400" />
+                        <div className="p-4 border-b border-slate-100">
+                            <div className="flex items-center gap-3 bg-slate-50 rounded-xl p-3 border border-slate-100">
+                                <div className="w-9 h-9 bg-indigo-600 rounded-full flex items-center justify-center">
+                                    <User size={16} className="text-white" />
                                 </div>
                                 <div className="flex-1 min-w-0">
-                                    <p className="text-sm font-bold truncate">{user?.email}</p>
-                                    <p className="text-xs text-[#64748b]">Writer</p>
+                                    <p className="text-sm font-bold truncate text-black">{user?.email}</p>
+                                    <p className="text-xs text-black/40 font-bold uppercase tracking-wider">Writer</p>
                                 </div>
                             </div>
                         </div>
@@ -412,7 +412,7 @@ export default function Dashboard() {
                             />
                         </nav>
 
-                        <div className="p-4 border-t border-[#1e293b] space-y-3">
+                        <div className="p-4 border-t border-slate-100 space-y-3">
                             <LanguageSelector
                                 currentLocale={locale}
                                 onChange={(val) => setLingoLocale(val)}
@@ -421,7 +421,7 @@ export default function Dashboard() {
                             />
                             <button
                                 onClick={handleSignOut}
-                                className="w-full flex items-center gap-3 px-4 py-3 text-[#94a3b8] hover:text-red-400 hover:bg-red-500/5 rounded-xl transition-all text-sm font-medium"
+                                className="w-full flex items-center gap-3 px-4 py-3 text-black/50 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all text-sm font-bold"
                             >
                                 <LogOut size={18} />
                                 {t("nav.logout")}
@@ -432,19 +432,19 @@ export default function Dashboard() {
             </AnimatePresence>
 
             <div className={`flex-1 transition-all duration-300 ${sidebarOpen ? 'ml-[280px]' : 'ml-0'}`}>
-                <header className="sticky top-0 z-30 bg-[#0f172a]/80 backdrop-blur-xl border-b border-[#1e293b]">
+                <header className="sticky top-0 z-30 bg-white/80 backdrop-blur-xl border-b border-slate-200">
                     <div className="px-6 py-4 flex items-center justify-between">
                         <div className="flex items-center gap-4">
                             <button
                                 onClick={() => setSidebarOpen(!sidebarOpen)}
-                                className="p-2 hover:bg-[#1e293b] rounded-xl transition-all"
+                                className="p-2 hover:bg-slate-50 text-black/50 rounded-xl transition-all"
                             >
                                 {sidebarOpen ? <ChevronLeft size={20} /> : <ChevronRight size={20} />}
                             </button>
-                            <h2 className="text-xl font-bold">{t("dashboard.title")}</h2>
+                            <h2 className="text-xl font-bold text-black">{t("dashboard.title")}</h2>
                         </div>
-                        <div className="text-sm text-[#64748b]">
-                            {t("dashboard.welcome")}, <span className="text-indigo-400 font-semibold">{user?.email?.split('@')[0]}</span>
+                        <div className="text-sm text-black/40 font-bold uppercase tracking-tight">
+                            {t("dashboard.welcome")}, <span className="text-indigo-600">{user?.email?.split('@')[0]}</span>
                         </div>
                     </div>
                 </header>
@@ -546,22 +546,22 @@ export default function Dashboard() {
                             initial={{ scale: 0.9, y: 20, opacity: 0 }}
                             animate={{ scale: 1, y: 0, opacity: 1 }}
                             exit={{ scale: 0.9, y: 20, opacity: 0 }}
-                            className="relative w-full max-w-5xl max-h-[90vh] bg-[#0f172a] border border-white/10 rounded-[2.5rem] shadow-[0_0_50px_-12px_rgba(0,0,0,0.5)] flex flex-col overflow-hidden"
+                            className="relative w-full max-w-5xl max-h-[90vh] bg-white border border-slate-200 rounded-[2.5rem] shadow-2xl flex flex-col overflow-hidden"
                             onClick={(e) => e.stopPropagation()}
                         >
-                            <div className="p-8 border-b border-white/5 flex items-center justify-between bg-gradient-to-r from-indigo-500/5 to-transparent">
+                            <div className="p-8 border-b border-slate-100 flex items-center justify-between bg-gradient-to-r from-indigo-50 to-transparent">
                                 <div className="flex items-center gap-4">
-                                    <div className="w-12 h-12 bg-indigo-500/10 rounded-2xl flex items-center justify-center text-indigo-400 border border-indigo-500/20 shadow-inner">
+                                    <div className="w-12 h-12 bg-indigo-600 rounded-2xl flex items-center justify-center text-white shadow-lg">
                                         <BookOpen size={24} />
                                     </div>
                                     <div>
-                                        <h3 className="text-xl font-bold text-white tracking-tight">{readingTitle}</h3>
-                                        <p className="text-[10px] text-indigo-400 uppercase font-black tracking-[0.2em]">Interactive Reader Mode</p>
+                                        <h3 className="text-xl font-bold text-black tracking-tight">{readingTitle}</h3>
+                                        <p className="text-[10px] text-black/30 uppercase font-black tracking-[0.2em]">Interactive Reader Mode</p>
                                     </div>
                                 </div>
                                 <button
                                     onClick={() => setReaderOpen(false)}
-                                    className="w-12 h-12 flex items-center justify-center bg-white/5 hover:bg-red-500/10 text-white/50 hover:text-red-400 rounded-2xl transition-all border border-white/5 hover:border-red-500/20"
+                                    className="w-12 h-12 flex items-center justify-center bg-slate-50 hover:bg-red-50 text-black/20 hover:text-red-500 rounded-2xl transition-all border border-slate-100"
                                 >
                                     <X size={24} />
                                 </button>
@@ -575,18 +575,18 @@ export default function Dashboard() {
                                             <Sparkles className="absolute inset-0 m-auto text-indigo-400 animate-pulse" size={32} />
                                         </div>
                                         <div className="text-center">
-                                            <p className="text-xl font-bold text-white mb-2">Extracting Content...</p>
-                                            <p className="text-sm text-[#64748b]">AI is preparing the document for reading</p>
+                                            <p className="text-xl font-bold text-black mb-2">Extracting Content...</p>
+                                            <p className="text-sm text-black/40 font-bold uppercase tracking-wider">AI is preparing the document for reading</p>
                                         </div>
                                     </div>
                                 ) : (
                                     <motion.div
                                         initial={{ opacity: 0, y: 20 }}
                                         animate={{ opacity: 1, y: 0 }}
-                                        className="prose prose-invert max-w-none"
+                                        className="prose prose-slate max-w-none"
                                     >
-                                        <div className="bg-indigo-500/5 border border-indigo-500/10 p-8 rounded-3xl mb-8">
-                                            <p className="text-lg leading-[1.8] text-[#94a3b8] whitespace-pre-wrap font-serif">
+                                        <div className="bg-slate-50 border border-slate-200 p-8 rounded-3xl mb-8">
+                                            <p className="text-lg leading-[1.8] text-black/70 whitespace-pre-wrap font-serif">
                                                 {readingContent}
                                             </p>
                                         </div>
@@ -617,9 +617,9 @@ function SidebarItem({ icon, label, active, onClick }) {
     return (
         <button
             onClick={onClick}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all ${active
-                ? 'bg-indigo-500/10 text-indigo-400 border border-indigo-500/20'
-                : 'text-[#94a3b8] hover:text-white hover:bg-[#1e293b]/50'
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-bold transition-all ${active
+                ? 'bg-indigo-50 text-indigo-600 border border-indigo-100'
+                : 'text-black/50 hover:text-black hover:bg-slate-50'
                 }`}
         >
             {icon}
@@ -659,7 +659,7 @@ function CreatePostView({
                     {isEditing && (
                         <button
                             onClick={onCancel}
-                            className="text-[#94a3b8] hover:text-white px-4 py-2 text-sm font-bold"
+                            className="text-black/40 hover:text-black px-4 py-2 text-sm font-bold transition-colors"
                         >
                             {t("ui.cancel") || "Cancel"}
                         </button>
@@ -667,7 +667,7 @@ function CreatePostView({
                     <select
                         value={baseLang}
                         onChange={(e) => setBaseLang(e.target.value)}
-                        className="bg-[#1e293b] border border-[#334155] rounded-xl px-4 py-2 text-sm font-semibold focus:ring-2 focus:ring-indigo-500 outline-none"
+                        className="bg-white border border-slate-200 rounded-xl px-4 py-2 text-sm font-bold text-black outline-none focus:ring-2 focus:ring-indigo-600 transition-all"
                     >
                         {LANGUAGES.map(l => (
                             <option key={l.code} value={l.code}>{l.nativeName}</option>
@@ -684,39 +684,39 @@ function CreatePostView({
                 </div>
             </div>
 
-            <div className="bg-[#1e293b]/50 border border-[#334155] rounded-2xl p-8 space-y-6">
+            <div className="bg-white border border-slate-200 rounded-2xl p-8 space-y-6 shadow-sm">
                 <div className="relative">
-                    <Type className="absolute left-4 top-4 text-[#334155]" size={20} />
+                    <Type className="absolute left-4 top-4 text-black/20" size={20} />
                     <input
                         type="text"
                         placeholder={t("editor.titlePlaceholder")}
                         value={title}
                         onChange={(e) => setTitle(e.target.value)}
-                        className="w-full bg-[#0f172a] border border-[#334155] rounded-2xl py-4 pl-12 pr-4 text-2xl font-bold outline-none focus:ring-2 focus:ring-indigo-500 transition-all placeholder-[#334155]"
+                        className="w-full bg-slate-50 border border-slate-200 rounded-2xl py-4 pl-12 pr-4 text-2xl font-bold outline-none focus:ring-2 focus:ring-indigo-600 transition-all placeholder-black/20 text-black"
                     />
                 </div>
                 <div className="relative min-h-[250px]">
-                    <AlignLeft className="absolute left-4 top-4 text-[#334155]" size={20} />
+                    <AlignLeft className="absolute left-4 top-4 text-black/20" size={20} />
                     <EditorContent
                         editor={editor}
-                        className="prose prose-invert max-w-none w-full bg-[#0f172a] border border-[#334155] rounded-2xl py-4 pl-12 pr-4 text-lg leading-relaxed outline-none focus:ring-2 focus:ring-indigo-500 transition-all placeholder-[#334155]"
+                        className="prose prose-slate max-w-none w-full bg-slate-50 border border-slate-200 rounded-2xl py-4 pl-12 pr-4 text-lg leading-relaxed outline-none focus:ring-2 focus:ring-indigo-600 transition-all placeholder-black/20 text-black"
                     />
                 </div>
 
                 {/* Attachments Display */}
                 {attachments.length > 0 && (
-                    <div className="flex flex-wrap gap-4 pt-4 border-t border-[#334155]">
+                    <div className="flex flex-wrap gap-4 pt-4 border-t border-slate-100">
                         {attachments.map((attach, index) => (
-                            <div key={index} className="flex items-center gap-2 bg-[#0f172a] px-3 py-2 rounded-lg border border-[#334155] group relative overflow-hidden">
-                                {attach.type === 'photo' && <Image size={16} className="text-pink-400" />}
-                                {attach.type === 'video' && <Video size={16} className="text-purple-400" />}
-                                {attach.type === 'link' && <Link size={16} className="text-blue-400" />}
-                                {attach.type === 'document' && <FileText size={16} className="text-emerald-400" />}
-                                <span className="text-xs font-medium truncate max-w-[150px]">{attach.name}</span>
+                            <div key={index} className="flex items-center gap-2 bg-slate-50 px-3 py-2 rounded-lg border border-slate-200 group relative overflow-hidden">
+                                {attach.type === 'photo' && <Image size={16} className="text-pink-600" />}
+                                {attach.type === 'video' && <Video size={16} className="text-purple-600" />}
+                                {attach.type === 'link' && <Link size={16} className="text-blue-600" />}
+                                {attach.type === 'document' && <FileText size={16} className="text-emerald-600" />}
+                                <span className="text-xs font-bold text-black/60 truncate max-w-[150px]">{attach.name}</span>
                                 <button
                                     type="button"
                                     onClick={() => removeAttachment(index)}
-                                    className="text-[#64748b] hover:text-red-400 transition-colors"
+                                    className="text-black/20 hover:text-red-600 transition-colors"
                                 >
                                     <X size={14} />
                                 </button>
@@ -727,33 +727,33 @@ function CreatePostView({
 
                 {/* Toolbar */}
                 <div className="flex items-center gap-2 pt-2">
-                    <label className="p-2.5 hover:bg-[#0f172a] rounded-xl cursor-pointer transition-all text-[#64748b] hover:text-white group relative">
+                    <label className="p-2.5 hover:bg-slate-100 rounded-xl cursor-pointer transition-all text-black/20 hover:text-black group relative">
                         <Image size={20} />
                         <input type="file" accept="image/*" className="hidden" onChange={(e) => handleFileUpload(e, 'photo')} />
-                        <span className="absolute -top-8 left-1/2 -translate-x-1/2 bg-[#334155] text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Photo</span>
+                        <span className="absolute -top-8 left-1/2 -translate-x-1/2 bg-black text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap font-bold">Photo</span>
                     </label>
-                    <label className="p-2.5 hover:bg-[#0f172a] rounded-xl cursor-pointer transition-all text-[#64748b] hover:text-white group relative">
+                    <label className="p-2.5 hover:bg-slate-100 rounded-xl cursor-pointer transition-all text-black/20 hover:text-black group relative">
                         <Video size={20} />
                         <input type="file" accept="video/*" className="hidden" onChange={(e) => handleFileUpload(e, 'video')} />
-                        <span className="absolute -top-8 left-1/2 -translate-x-1/2 bg-[#334155] text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Video</span>
+                        <span className="absolute -top-8 left-1/2 -translate-x-1/2 bg-black text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap font-bold">Video</span>
                     </label>
                     <div className="relative">
                         <button
                             type="button"
                             onClick={() => setShowLinkInput(!showLinkInput)}
-                            className={`p-2.5 hover:bg-[#0f172a] rounded-xl transition-all text-[#64748b] hover:text-white group relative ${showLinkInput ? 'bg-[#0f172a] text-white' : ''}`}
+                            className={`p-2.5 hover:bg-slate-100 rounded-xl transition-all text-black/20 hover:text-black group relative ${showLinkInput ? 'bg-slate-100 text-black' : ''}`}
                         >
                             <Link size={20} />
-                            <span className="absolute -top-8 left-1/2 -translate-x-1/2 bg-[#334155] text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Link</span>
+                            <span className="absolute -top-8 left-1/2 -translate-x-1/2 bg-black text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap font-bold">Link</span>
                         </button>
                         {showLinkInput && (
-                            <div className="absolute bottom-full mb-4 left-0 bg-[#0a0f1e] border border-[#334155] p-3 rounded-xl shadow-2xl flex gap-2 min-w-[300px] z-50">
+                            <div className="absolute bottom-full mb-4 left-0 bg-white border border-slate-200 p-3 rounded-xl shadow-2xl flex gap-2 min-w-[300px] z-50">
                                 <input
                                     type="url"
                                     placeholder="Paste link here..."
                                     value={linkUrl}
                                     onChange={(e) => setLinkUrl(e.target.value)}
-                                    className="flex-1 bg-[#0f172a] border border-[#334155] rounded-lg px-3 py-1.5 text-xs outline-none focus:ring-2 focus:ring-indigo-500"
+                                    className="flex-1 bg-slate-50 border border-slate-200 rounded-lg px-3 py-1.5 text-xs outline-none focus:ring-2 focus:ring-indigo-600 text-black"
                                     autoFocus
                                 />
                                 <button
@@ -766,10 +766,10 @@ function CreatePostView({
                             </div>
                         )}
                     </div>
-                    <label className="p-2.5 hover:bg-[#0f172a] rounded-xl cursor-pointer transition-all text-[#64748b] hover:text-white group relative">
+                    <label className="p-2.5 hover:bg-slate-100 rounded-xl cursor-pointer transition-all text-black/20 hover:text-black group relative">
                         <FileText size={20} />
                         <input type="file" className="hidden" onChange={(e) => handleFileUpload(e, 'document')} />
-                        <span className="absolute -top-8 left-1/2 -translate-x-1/2 bg-[#334155] text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">Document</span>
+                        <span className="absolute -top-8 left-1/2 -translate-x-1/2 bg-black text-white text-[10px] px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap font-bold">Document</span>
                     </label>
                 </div>
             </div>
@@ -814,7 +814,7 @@ function CreatePostView({
                 <button
                     onClick={() => handleAI('improve')}
                     disabled={aiLoading.improve || !content}
-                    className="w-full flex items-center justify-center gap-2 bg-indigo-600/20 hover:bg-indigo-600/30 disabled:opacity-50 text-indigo-300 px-4 py-3 rounded-xl font-semibold transition-all border border-indigo-500/20"
+                    className="w-full flex items-center justify-center gap-2 bg-indigo-50 hover:bg-indigo-100 disabled:opacity-50 text-indigo-700 px-4 py-3 rounded-xl font-bold transition-all border border-indigo-100"
                 >
                     {aiLoading.improve ? <Loader2 size={16} className="animate-spin" /> : <Wand2 size={16} />}
                     {t("ai.improveWriting")}
@@ -843,7 +843,7 @@ function AIButton({ icon, label, loading, onClick, disabled }) {
         <button
             onClick={onClick}
             disabled={loading || disabled}
-            className="flex items-center justify-center gap-2 bg-[#0f172a]/50 hover:bg-[#0f172a] disabled:opacity-50 text-[#e2e8f0] px-4 py-3 rounded-xl text-sm font-semibold transition-all border border-[#334155] hover:border-indigo-500/30"
+            className="flex items-center justify-center gap-2 bg-white hover:bg-slate-50 disabled:opacity-50 text-black/60 px-4 py-3 rounded-xl text-xs font-bold transition-all border border-slate-200 hover:border-indigo-600 hover:text-indigo-600"
         >
             {loading ? <Loader2 size={16} className="animate-spin" /> : icon}
             {label}
@@ -853,9 +853,9 @@ function AIButton({ icon, label, loading, onClick, disabled }) {
 
 function ResultCard({ label, content }) {
     return (
-        <div className="bg-[#0f172a]/50 border border-[#334155] rounded-xl p-4">
-            <p className="text-xs font-bold text-indigo-400 uppercase tracking-wider mb-2">{label}</p>
-            <p className="text-[#e2e8f0] text-sm leading-relaxed">{content}</p>
+        <div className="bg-slate-50 border border-slate-200 rounded-xl p-4">
+            <p className="text-[10px] font-black text-indigo-600 uppercase tracking-[0.2em] mb-2">{label}</p>
+            <p className="text-black/70 text-sm leading-relaxed font-medium">{content}</p>
         </div>
     );
 }
@@ -891,16 +891,16 @@ function PostListView({ posts, loading, onSelect, onEdit, onDelete, onSpeech, sp
     if (loading) {
         return (
             <div className="flex flex-col items-center justify-center py-20 gap-4">
-                <Loader2 className="animate-spin text-indigo-500" size={32} />
-                <p className="text-[#94a3b8] animate-pulse">{t("ui.loading")}</p>
+                <Loader2 className="animate-spin text-indigo-600" size={32} />
+                <p className="text-black/30 font-bold uppercase tracking-widest text-xs animate-pulse">{t("ui.loading")}</p>
             </div>
         );
     }
 
     if (posts.length === 0) {
         return (
-            <div className="text-center py-20 bg-[#1e293b]/50 rounded-3xl border border-dashed border-[#334155]">
-                <p className="text-xl text-[#94a3b8] mb-4">{t("ui.empty")}</p>
+            <div className="text-center py-20 bg-white rounded-3xl border border-dashed border-slate-300">
+                <p className="text-xl text-black/20 font-bold uppercase tracking-widest">{t("ui.empty")}</p>
             </div>
         );
     }
@@ -918,32 +918,33 @@ function PostListView({ posts, loading, onSelect, onEdit, onDelete, onSpeech, sp
                         key={post.id}
                         initial={{ opacity: 0, y: 10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="group bg-[#1e293b] p-6 rounded-2xl cursor-pointer transition-all hover:-translate-y-1 border border-[#334155] hover:border-indigo-500/50 hover:shadow-[0_20px_40px_rgba(0,0,0,0.3)] flex flex-col h-full"
+                        className="group relative bg-white p-6 rounded-2xl cursor-pointer transition-all hover:-translate-y-1 border border-slate-200 hover:border-indigo-600 shadow-sm flex flex-col h-full overflow-visible"
                         onClick={() => onSelect(post)}
                     >
+                        <div className="absolute inset-0 bg-gradient-to-br from-purple-300 via-pink-300 via-blue-300 to-teal-300 opacity-0 group-hover:opacity-100 transition-opacity blur-[80px] -z-10 rounded-2xl"></div>
                         <div className="flex-1">
                             <div className="flex items-center justify-between mb-3">
                                 <div className="flex items-center gap-2">
-                                    <span className="bg-indigo-500/10 text-indigo-400 text-[10px] font-bold px-2 py-0.5 rounded uppercase tracking-wider">
+                                    <span className="bg-indigo-50 text-indigo-600 text-[10px] font-black px-2 py-0.5 rounded uppercase tracking-widest">
                                         {post.base_lang}
                                     </span>
                                     {post.base_lang !== locale && (
-                                        <span className="text-indigo-400/60 text-[10px] font-bold uppercase">→ {locale}</span>
+                                        <span className="text-indigo-600/40 text-[10px] font-black uppercase tracking-tighter">→ {locale}</span>
                                     )}
                                 </div>
-                                <span className="text-[#64748b] text-[10px]">
+                                <span className="text-black/30 text-[10px] font-bold">
                                     {new Date(post.created_at).toLocaleDateString()}
                                 </span>
                             </div>
-                            <h3 className="text-lg font-bold mb-3 group-hover:text-indigo-400 transition-colors line-clamp-2">
+                            <h3 className="text-lg font-black mb-3 group-hover:text-indigo-600 transition-colors line-clamp-2 text-black">
                                 {post.title}
                             </h3>
-                            <p className="text-[#94a3b8] text-sm line-clamp-3 leading-relaxed">
+                            <p className="text-black/50 text-sm line-clamp-3 leading-relaxed font-medium">
                                 {post.content}
                             </p>
                         </div>
 
-                        <div className="mt-6 flex items-center justify-between border-t border-[#334155] pt-4 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <div className="mt-6 flex items-center justify-between border-t border-slate-100 pt-4 opacity-0 group-hover:opacity-100 transition-opacity">
                             <div className="flex items-center gap-1">
                                 <IconButton
                                     icon={speakingPostId === post.id ? <Square size={14} fill="currentColor" /> : <Volume2 size={16} />}
@@ -988,16 +989,16 @@ function PostListView({ posts, loading, onSelect, onEdit, onDelete, onSpeech, sp
 
 function IconButton({ icon, onClick, active, color = 'indigo', title }) {
     const colors = {
-        indigo: 'text-indigo-400 hover:bg-indigo-500/10',
-        red: 'text-red-400 hover:bg-red-500/10',
-        blue: 'text-blue-400 hover:bg-blue-500/10',
+        indigo: 'text-indigo-600 hover:bg-indigo-50',
+        red: 'text-red-500 hover:bg-red-50',
+        blue: 'text-blue-500 hover:bg-blue-50',
     };
 
     return (
         <button
             onClick={onClick}
             title={title}
-            className={`p-2 rounded-lg transition-all ${active ? 'bg-indigo-500/20 text-indigo-400' : colors[color]}`}
+            className={`p-2 rounded-lg transition-all ${active ? 'bg-indigo-600 text-white shadow-lg' : colors[color]}`}
         >
             {icon}
         </button>
@@ -1029,31 +1030,35 @@ function PostDetailView({ post, comments, newComment, setNewComment, handleComme
 
     return (
         <div className="max-w-3xl mx-auto space-y-8">
-            <button onClick={onBack} className="flex items-center gap-2 text-[#94a3b8] hover:text-white transition-colors">
+            <button onClick={onBack} className="flex items-center gap-2 text-black/40 hover:text-black transition-colors font-bold uppercase tracking-widest text-xs">
                 <ChevronLeft size={18} />
-                <span className="text-sm font-medium">{t("editor.back")}</span>
+                <span>{t("editor.back")}</span>
             </button>
 
             <article>
                 <div className="flex items-center gap-3 mb-4">
-                    <span className="bg-indigo-500/10 text-indigo-400 text-xs font-bold px-3 py-1 rounded-full uppercase">
+                    <span className="bg-indigo-50 text-indigo-600 text-[10px] font-black px-3 py-1 rounded-full uppercase tracking-widest">
                         {post.base_lang} → {locale}
                     </span>
                     {postTranslating && (
-                        <span className="flex items-center gap-2 text-indigo-400 text-sm animate-pulse">
+                        <span className="flex items-center gap-2 text-indigo-600 text-[10px] font-black uppercase tracking-widest animate-pulse">
                             <Globe size={14} /> Translating...
                         </span>
                     )}
-                    <span className="text-[#64748b] text-sm">{new Date(post.created_at).toLocaleDateString()}</span>
+                    <span className="text-black/30 text-xs font-bold uppercase tracking-tighter">{new Date(post.created_at).toLocaleDateString()}</span>
                 </div>
-                <h2 className="text-3xl md:text-4xl font-black mb-6">{translatedPost.title}</h2>
-                <p className="text-lg text-[#cbd5e1] leading-relaxed whitespace-pre-wrap mb-10">{translatedPost.content}</p>
+                <h2 className="text-3xl md:text-5xl font-black mb-6 text-black tracking-tight">{translatedPost.title}</h2>
+                <div className="prose prose-slate max-w-none">
+                    <div className="text-lg text-black/80 leading-[1.8] whitespace-pre-wrap mb-10 font-medium bg-white p-8 rounded-[2rem] border border-slate-100 shadow-sm">
+                        {translatedPost.content}
+                    </div>
+                </div>
 
                 {/* Attachments Section */}
                 {post.metadata?.attachments?.length > 0 && (
                     <div className="mb-10 space-y-4">
-                        <h4 className="text-sm font-bold flex items-center gap-2 text-[#64748b] uppercase tracking-widest">
-                            <Paperclip size={14} className="text-indigo-400" />
+                        <h4 className="text-[10px] font-black flex items-center gap-2 text-black/40 uppercase tracking-[0.2em]">
+                            <Paperclip size={14} className="text-indigo-600" />
                             Attachments & Media
                         </h4>
                         <div className="grid grid-cols-1 gap-4">
@@ -1070,7 +1075,7 @@ function PostDetailView({ post, comments, newComment, setNewComment, handleComme
                                 const isDocLink = attach.type === 'link' && (attach.url.toLowerCase().endsWith('.pdf') || attach.url.toLowerCase().endsWith('.docx'));
 
                                 return (
-                                    <div key={index} className="bg-[#1e293b] border border-[#334155] rounded-2xl overflow-hidden hover:border-indigo-500/50 transition-all shadow-lg">
+                                    <div key={index} className="bg-white border border-slate-200 rounded-3xl overflow-hidden hover:border-indigo-600 transition-all shadow-md group">
                                         {/* Photo */}
                                         {attach.type === 'photo' && (
                                             <div className="w-full bg-[#0f172a] flex items-center justify-center">
@@ -1113,11 +1118,11 @@ function PostDetailView({ post, comments, newComment, setNewComment, handleComme
 
                                         {/* Caption / Actions bar */}
                                         <div
-                                            className={`p-3 flex items-center justify-between gap-3 ${(attach.type === 'document' || isDocLink) ? 'cursor-pointer hover:bg-indigo-500/5' : ''}`}
+                                            className={`p-4 flex items-center justify-between gap-3 ${(attach.type === 'document' || isDocLink) ? 'cursor-pointer hover:bg-indigo-50' : ''}`}
                                             onClick={() => (attach.type === 'document' || isDocLink) && handleReadDocument(attach)}
                                         >
                                             <div className="flex items-center gap-2 min-w-0">
-                                                <div className={`w-7 h-7 bg-[#0f172a] rounded-lg flex items-center justify-center flex-shrink-0 ${(attach.type === 'document' || isDocLink) ? 'text-emerald-400' : 'text-indigo-400'
+                                                <div className={`w-8 h-8 bg-slate-50 rounded-xl flex items-center justify-center flex-shrink-0 ${(attach.type === 'document' || isDocLink) ? 'text-emerald-600' : 'text-indigo-600'
                                                     }`}>
                                                     {attach.type === 'photo' && <Image size={14} />}
                                                     {attach.type === 'video' && <Video size={14} />}
@@ -1125,8 +1130,8 @@ function PostDetailView({ post, comments, newComment, setNewComment, handleComme
                                                     {(attach.type === 'document' || isDocLink) && <FileText size={14} />}
                                                 </div>
                                                 <div className="min-w-0">
-                                                    <p className="font-bold text-xs truncate">{attach.name}</p>
-                                                    <p className="text-[8px] text-[#475569] uppercase font-black">
+                                                    <p className="font-bold text-xs truncate text-black">{attach.name}</p>
+                                                    <p className="text-[8px] text-black/30 uppercase font-black tracking-widest">
                                                         {(isDocLink) ? 'document link' : attach.type}
                                                     </p>
                                                 </div>
@@ -1146,7 +1151,7 @@ function PostDetailView({ post, comments, newComment, setNewComment, handleComme
                                                 )}
                                                 <a href={attach.url} target="_blank" rel="noopener noreferrer"
                                                     onClick={(e) => e.stopPropagation()}
-                                                    className="text-[#475569] hover:text-white flex-shrink-0"
+                                                    className="text-black/20 hover:text-black transition-colors flex-shrink-0"
                                                 >
                                                     <Globe size={14} />
                                                 </a>
@@ -1158,14 +1163,14 @@ function PostDetailView({ post, comments, newComment, setNewComment, handleComme
                                             <div className="px-3 pb-3">
                                                 <div
                                                     onClick={() => isDocLink && handleReadDocument(attach)}
-                                                    className={`block bg-[#0f172a] border border-[#334155] rounded-xl px-4 py-3 transition-all ${isDocLink ? 'cursor-pointer hover:border-emerald-500/30' : 'cursor-default transition-none'
+                                                    className={`block bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 transition-all ${isDocLink ? 'cursor-pointer hover:border-emerald-600' : 'cursor-default transition-none'
                                                         }`}
                                                 >
-                                                    <p className={`text-[11px] font-bold truncate ${isDocLink ? 'text-emerald-400' : 'text-indigo-400'}`}>
+                                                    <p className={`text-[11px] font-bold truncate ${isDocLink ? 'text-emerald-600' : 'text-indigo-600'}`}>
                                                         {attach.url}
                                                     </p>
                                                     {isDocLink && (
-                                                        <span className="text-[8px] text-emerald-400/50 uppercase font-black mt-1 block">Click to read content</span>
+                                                        <span className="text-[8px] text-emerald-600/50 uppercase font-black mt-1 block tracking-widest">Click to read content</span>
                                                     )}
                                                 </div>
                                             </div>
@@ -1182,29 +1187,29 @@ function PostDetailView({ post, comments, newComment, setNewComment, handleComme
                                         {(attach.type === 'document' || attach.type === 'link') && (
                                             <div className="px-3 pb-3">
                                                 {attachmentSummaries[attach.url] ? (
-                                                    <div className="bg-[#0f172a] p-2.5 rounded-lg border border-indigo-500/10">
+                                                    <div className="bg-indigo-50 p-3 rounded-xl border border-indigo-100">
                                                         <div className="flex items-center justify-between mb-1">
-                                                            <span className="text-[9px] font-black text-indigo-400 uppercase tracking-widest">AI Summary</span>
+                                                            <span className="text-[9px] font-black text-indigo-600 uppercase tracking-widest">AI Summary</span>
                                                             <button
                                                                 onClick={() => setAttachmentSummaries(prev => {
                                                                     const next = { ...prev };
                                                                     delete next[attach.url];
                                                                     return next;
                                                                 })}
-                                                                className="text-[#334155] hover:text-white"
+                                                                className="text-black/20 hover:text-black transition-colors"
                                                             >
                                                                 <X size={10} />
                                                             </button>
                                                         </div>
-                                                        <p className="text-[11px] text-indigo-100 italic leading-snug">
-                                                            {attachmentSummaries[attach.url]}
+                                                        <p className="text-[11px] text-indigo-900 italic leading-snug font-medium">
+                                                            "{attachmentSummaries[attach.url]}"
                                                         </p>
                                                     </div>
                                                 ) : (
                                                     <button
                                                         onClick={() => handleAttachmentSummary(attach)}
                                                         disabled={summarizingAttachment[attach.url]}
-                                                        className="w-full flex items-center justify-center gap-1.5 py-1.5 bg-indigo-600/5 hover:bg-indigo-600/10 text-indigo-400 rounded-lg text-[10px] font-bold transition-all border border-indigo-500/10"
+                                                        className="w-full flex items-center justify-center gap-1.5 py-1.5 bg-indigo-600/5 hover:bg-indigo-600/10 text-indigo-600 rounded-lg text-[10px] font-bold transition-all border border-indigo-100"
                                                     >
                                                         {summarizingAttachment[attach.url] ? <Loader2 size={12} className="animate-spin" /> : <Sparkles size={12} />}
                                                         {summarizingAttachment[attach.url] ? 'Summarizing...' : 'AI Summary'}
@@ -1220,47 +1225,47 @@ function PostDetailView({ post, comments, newComment, setNewComment, handleComme
                 )}
             </article>
 
-            <div className="bg-indigo-600/10 border border-indigo-500/20 rounded-2xl p-6">
-                <div className="flex items-center justify-between mb-4">
-                    <h4 className="font-bold flex items-center gap-2">
-                        <Sparkles size={18} className="text-indigo-400" />
+            <div className="bg-indigo-50 border border-indigo-100 rounded-[2.5rem] p-8 shadow-sm">
+                <div className="flex items-center justify-between mb-6">
+                    <h4 className="font-black flex items-center gap-3 text-indigo-600 uppercase tracking-widest text-sm">
+                        <Sparkles size={20} />
                         Post Summary
                     </h4>
                     <button
                         onClick={handleSummarize}
                         disabled={summarizing}
-                        className="bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 transition-all"
+                        className="bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white px-6 py-2.5 rounded-2xl text-xs font-black uppercase tracking-widest flex items-center gap-2 transition-all shadow-lg shadow-indigo-200"
                     >
                         {summarizing ? <Loader2 size={14} className="animate-spin" /> : <Sparkles size={14} />}
                         {summarizing ? 'Summarizing...' : t("ai.generateSummary")}
                     </button>
                 </div>
                 {postSummary ? (
-                    <p className="text-indigo-100 italic leading-relaxed bg-[#0f172a]/50 p-4 rounded-xl">"{postSummary}"</p>
+                    <p className="text-indigo-900 italic leading-relaxed bg-white/50 p-6 rounded-3xl border border-white font-medium">"{postSummary}"</p>
                 ) : (
-                    <p className="text-[#94a3b8] text-sm italic">Click summarize to get an AI-powered overview.</p>
+                    <p className="text-indigo-600/40 text-sm italic font-bold">Click summarize to get an AI-powered overview.</p>
                 )}
             </div>
 
             <section>
-                <h4 className="text-xl font-bold mb-6 flex items-center gap-3">
-                    <MessageSquare size={20} className="text-indigo-400" />
-                    Comments ({comments.length})
+                <h4 className="text-xl font-black mb-6 flex items-center gap-3 text-black tracking-tight">
+                    <MessageSquare size={20} className="text-indigo-600" />
+                    Comments <span className="text-black/20 font-light">({comments.length})</span>
                 </h4>
 
-                <form onSubmit={handleComment} className="bg-[#1e293b] border border-[#334155] rounded-2xl p-6 mb-6">
+                <form onSubmit={handleComment} className="bg-white border border-slate-200 rounded-[2.5rem] p-8 mb-6 shadow-sm">
                     <textarea
                         placeholder="Share your thoughts..."
                         value={newComment}
                         onChange={(e) => setNewComment(e.target.value)}
-                        className="w-full bg-[#0f172a] border border-[#334155] rounded-xl px-4 py-3 h-24 outline-none focus:ring-2 focus:ring-indigo-500 resize-none text-sm font-medium placeholder-[#475569] mb-4"
+                        className="w-full bg-slate-50 border border-slate-100 rounded-2xl px-6 py-4 h-24 outline-none focus:ring-2 focus:ring-indigo-600 resize-none text-sm font-medium placeholder-black/20 text-black transition-all mb-4"
                     />
                     <div className="flex justify-between items-center">
-                        <span className="text-xs text-[#64748b]">Posting in {locale?.toUpperCase()}</span>
+                        <span className="text-[10px] text-black/30 font-black uppercase tracking-widest">Posting in {locale?.toUpperCase()}</span>
                         <button
                             type="submit"
                             disabled={!newComment}
-                            className="bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white px-6 py-2 rounded-xl text-sm font-bold flex items-center gap-2 transition-all"
+                            className="bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white px-8 py-2.5 rounded-2xl text-xs font-black uppercase tracking-[0.2em] flex items-center gap-2 transition-all shadow-lg shadow-indigo-100"
                         >
                             <Send size={14} />
                             Comment
@@ -1297,25 +1302,26 @@ function CommentItem({ comment, targetLocale }) {
     }, [targetLocale, comment.comment_text, comment.original_language]);
 
     return (
-        <div className="bg-[#1e293b] p-5 rounded-2xl border border-[#334155]">
-            <div className="flex items-center justify-between mb-3">
+        <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm relative overflow-hidden group">
+            <div className="absolute top-0 left-0 w-1 h-full bg-indigo-600/0 group-hover:bg-indigo-600 transition-all" />
+            <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-indigo-500/10 rounded-full flex items-center justify-center">
-                        <User size={14} className="text-indigo-400" />
+                    <div className="w-10 h-10 bg-slate-50 rounded-2xl flex items-center justify-center border border-slate-100 group-hover:bg-indigo-50 group-hover:border-indigo-100 transition-colors">
+                        <User size={16} className="text-black/30 group-hover:text-indigo-600" />
                     </div>
                     <div>
-                        <p className="text-sm font-bold">User {comment.user_id?.slice(0, 5)}</p>
-                        <p className="text-xs text-[#64748b]">{new Date(comment.created_at).toLocaleDateString()}</p>
+                        <p className="text-sm font-black text-black">User {comment.user_id?.slice(0, 5)}</p>
+                        <p className="text-[10px] text-black/30 font-bold uppercase tracking-widest">{new Date(comment.created_at).toLocaleDateString()}</p>
                     </div>
                 </div>
-                <span className="text-[10px] font-bold text-[#475569] uppercase bg-[#0f172a] px-2 py-1 rounded-full">{comment.original_language}</span>
+                <span className="text-[10px] font-black text-black/30 uppercase bg-slate-50 px-3 py-1 rounded-full tracking-widest">{comment.original_language}</span>
             </div>
             {translating ? (
-                <div className="flex items-center gap-2 text-indigo-400 text-xs italic">
+                <div className="flex items-center gap-2 text-indigo-600 text-[10px] font-black uppercase tracking-widest animate-pulse">
                     <Loader2 size={12} className="animate-spin" /> Translating...
                 </div>
             ) : (
-                <p className="text-[#e2e8f0] text-sm leading-relaxed">{displayContent}</p>
+                <p className="text-black/70 text-sm leading-relaxed font-medium">{displayContent}</p>
             )}
         </div>
     );

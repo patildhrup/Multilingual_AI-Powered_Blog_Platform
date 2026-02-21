@@ -129,34 +129,34 @@ export default function ChatBot() {
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 20, scale: 0.95 }}
                         transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-                        className="mb-3 w-[400px] max-h-[500px] bg-[#0f172a] border border-[#334155] rounded-2xl shadow-2xl shadow-black/50 flex flex-col overflow-hidden"
+                        className="mb-3 w-[400px] max-h-[500px] bg-white border border-slate-200 rounded-[2.5rem] shadow-2xl shadow-slate-200/60 flex flex-col overflow-hidden"
                     >
-                        <div className="flex items-center justify-between px-5 py-4 border-b border-[#1e293b] bg-gradient-to-r from-indigo-600/10 to-purple-600/10">
+                        <div className="flex items-center justify-between px-6 py-5 border-b border-slate-100 bg-gradient-to-r from-indigo-50/50 to-purple-50/50">
                             <div className="flex items-center gap-3">
-                                <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center">
-                                    <Bot size={16} className="text-white" />
+                                <div className="w-9 h-9 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/20">
+                                    <Bot size={18} className="text-white" />
                                 </div>
                                 <div>
-                                    <p className="text-sm font-bold text-[#f8fafc]">Blogy AI</p>
-                                    <p className="text-[10px] text-indigo-400 font-medium">Powered by OpenRouter</p>
+                                    <p className="text-sm font-black text-black">Blogy AI</p>
+                                    <p className="text-[10px] text-indigo-600 font-bold uppercase tracking-widest">Assistant</p>
                                 </div>
                             </div>
                             <button
                                 onClick={() => setOpen(false)}
-                                className="p-1.5 hover:bg-[#1e293b] rounded-lg transition-colors text-[#94a3b8] hover:text-white"
+                                className="p-2 hover:bg-slate-100 rounded-xl transition-colors text-black/20 hover:text-black"
                             >
-                                <X size={16} />
+                                <X size={18} />
                             </button>
                         </div>
 
                         <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-3 min-h-[280px] max-h-[340px]">
                             {messages.length === 0 && (
                                 <div className="flex flex-col items-center justify-center h-full text-center py-10">
-                                    <div className="w-12 h-12 bg-indigo-500/10 rounded-2xl flex items-center justify-center mb-3">
-                                        <Bot size={24} className="text-indigo-400" />
+                                    <div className="w-14 h-14 bg-indigo-50 rounded-2xl flex items-center justify-center mb-4 border border-indigo-100 shadow-sm">
+                                        <Bot size={28} className="text-indigo-600" />
                                     </div>
-                                    <p className="text-sm font-bold text-[#e2e8f0] mb-1">AI Writing Assistant</p>
-                                    <p className="text-xs text-[#64748b] max-w-[260px] leading-relaxed">
+                                    <p className="text-base font-black text-black mb-1 italic">Blogy Writing Assistant</p>
+                                    <p className="text-xs text-black/40 max-w-[260px] leading-relaxed font-medium">
                                         Ask me about writing, SEO, translations, content ideas, or anything blog-related!
                                     </p>
                                 </div>
@@ -165,54 +165,53 @@ export default function ChatBot() {
                             {messages.map((msg, i) => (
                                 <div
                                     key={i}
-                                    className={`flex gap-2.5 ${msg.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}
+                                    className={`flex gap-3 ${msg.role === 'user' ? 'flex-row-reverse' : 'flex-row'}`}
                                 >
-                                    <div className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 ${msg.role === 'user'
+                                    <div className={`w-8 h-8 rounded-xl flex items-center justify-center shrink-0 shadow-sm ${msg.role === 'user'
                                         ? 'bg-indigo-600'
-                                        : 'bg-gradient-to-br from-indigo-500 to-purple-600'
+                                        : 'bg-white border border-slate-100'
                                         }`}>
                                         {msg.role === 'user'
-                                            ? <User size={13} className="text-white" />
-                                            : <Bot size={13} className="text-white" />
+                                            ? <User size={14} className="text-white" />
+                                            : <Bot size={14} className="text-indigo-600" />
                                         }
                                     </div>
-                                    <div className={`max-w-[80%] px-3.5 py-2.5 rounded-2xl text-sm leading-relaxed ${msg.role === 'user'
+                                    <div className={`max-w-[80%] px-4 py-3 rounded-2xl text-sm leading-relaxed shadow-sm ${msg.role === 'user'
                                         ? 'bg-indigo-600 text-white rounded-tr-md'
-                                        : 'bg-[#1e293b] text-[#e2e8f0] border border-[#334155] rounded-tl-md'
+                                        : 'bg-slate-50 text-black border border-slate-100 rounded-tl-md font-medium'
                                         }`}>
                                         {msg.content}
                                     </div>
                                 </div>
                             ))}
-
                             {loading && (
-                                <div className="flex gap-2.5">
-                                    <div className="w-7 h-7 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center shrink-0">
-                                        <Bot size={13} className="text-white" />
+                                <div className="flex gap-3">
+                                    <div className="w-8 h-8 bg-white border border-slate-100 rounded-xl flex items-center justify-center shrink-0 shadow-sm">
+                                        <Bot size={14} className="text-indigo-600" />
                                     </div>
-                                    <div className="bg-[#1e293b] border border-[#334155] rounded-2xl rounded-tl-md px-4 py-3 flex items-center gap-1.5">
-                                        <span className="w-1.5 h-1.5 bg-indigo-400 rounded-full animate-bounce" />
-                                        <span className="w-1.5 h-1.5 bg-indigo-400 rounded-full animate-bounce [animation-delay:0.15s]" />
-                                        <span className="w-1.5 h-1.5 bg-indigo-400 rounded-full animate-bounce [animation-delay:0.3s]" />
+                                    <div className="bg-slate-50 border border-slate-100 rounded-2xl rounded-tl-md px-4 py-3 flex items-center gap-1.5 shadow-sm">
+                                        <span className="w-1.5 h-1.5 bg-indigo-600 rounded-full animate-bounce" />
+                                        <span className="w-1.5 h-1.5 bg-indigo-600 rounded-full animate-bounce [animation-delay:0.15s]" />
+                                        <span className="w-1.5 h-1.5 bg-indigo-600 rounded-full animate-bounce [animation-delay:0.3s]" />
                                     </div>
                                 </div>
                             )}
                         </div>
 
-                        <div className="p-3 border-t border-[#1e293b] bg-[#0a0f1e] space-y-2">
+                        <div className="p-4 border-t border-slate-100 bg-slate-50/50 space-y-3">
                             {attachment && (
-                                <div className="flex items-center justify-between bg-indigo-500/10 border border-indigo-500/20 px-3 py-2 rounded-xl">
+                                <div className="flex items-center justify-between bg-white border border-slate-200 px-4 py-2.5 rounded-xl shadow-sm">
                                     <div className="flex items-center gap-2">
-                                        <FileText size={14} className="text-indigo-400" />
-                                        <span className="text-xs font-medium text-indigo-300 truncate max-w-[200px]">{attachment.name}</span>
+                                        <FileText size={14} className="text-indigo-600" />
+                                        <span className="text-xs font-bold text-black/60 truncate max-w-[200px]">{attachment.name}</span>
                                     </div>
-                                    <button onClick={() => setAttachment(null)} className="text-indigo-400 hover:text-white">
+                                    <button onClick={() => setAttachment(null)} className="text-black/20 hover:text-black transition-colors">
                                         <X size={14} />
                                     </button>
                                 </div>
                             )}
                             <form onSubmit={sendMessage} className="flex items-center gap-2">
-                                <label className="p-2.5 hover:bg-[#1e293b] rounded-xl cursor-pointer transition-all text-[#94a3b8] hover:text-white shrink-0">
+                                <label className="p-3 hover:bg-white rounded-xl cursor-pointer transition-all text-black/20 hover:text-black shrink-0 border border-transparent hover:border-slate-200 shadow-sm hover:shadow-md">
                                     <Paperclip size={18} />
                                     <input type="file" className="hidden" onChange={handleFileChange} />
                                 </label>
@@ -223,14 +222,14 @@ export default function ChatBot() {
                                     onChange={(e) => setInput(e.target.value)}
                                     placeholder={attachment ? "Add instructions..." : "Ask anything..."}
                                     disabled={loading}
-                                    className="flex-1 bg-[#1e293b] border border-[#334155] rounded-xl px-4 py-2.5 text-sm outline-none focus:ring-2 focus:ring-indigo-500 transition-all placeholder-[#475569] font-medium disabled:opacity-50"
+                                    className="flex-1 bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-indigo-600 transition-all placeholder-black/20 font-medium text-black disabled:opacity-50 shadow-sm"
                                 />
                                 <button
                                     type="submit"
                                     disabled={(!input.trim() && !attachment) || loading}
-                                    className="bg-indigo-600 hover:bg-indigo-700 disabled:opacity-40 text-white p-2.5 rounded-xl transition-all shrink-0"
+                                    className="bg-indigo-600 hover:bg-indigo-700 disabled:opacity-40 text-white p-3 rounded-xl transition-all shrink-0 shadow-lg shadow-indigo-500/30"
                                 >
-                                    {loading ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
+                                    {loading ? <Loader2 size={18} className="animate-spin" /> : <Send size={18} />}
                                 </button>
                             </form>
                         </div>
@@ -238,17 +237,20 @@ export default function ChatBot() {
                 )}
             </AnimatePresence>
 
-            <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => setOpen(!open)}
-                className={`w-14 h-14 rounded-full flex items-center justify-center shadow-xl transition-all ${open
-                    ? 'bg-[#1e293b] border border-[#334155] text-[#94a3b8] hover:text-white'
-                    : 'bg-gradient-to-br from-indigo-600 to-purple-600 text-white shadow-indigo-500/30 hover:shadow-indigo-500/50'
-                    }`}
-            >
-                {open ? <X size={22} /> : <MessageSquare size={22} />}
-            </motion.button>
+            <motion.div className="relative group">
+                <div className="absolute inset-0 bg-gradient-to-br from-purple-400 via-pink-400 via-blue-400 to-teal-400 opacity-0 group-hover:opacity-100 transition-opacity blur-2xl -z-10 rounded-2xl"></div>
+                <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={() => setOpen(!open)}
+                    className={`w-14 h-14 rounded-2xl flex items-center justify-center shadow-2xl transition-all ${open
+                        ? 'bg-white border border-slate-200 text-black/20 hover:text-black'
+                        : 'bg-indigo-600 text-white shadow-indigo-500/40 hover:bg-indigo-700'
+                        }`}
+                >
+                    {open ? <X size={24} /> : <MessageSquare size={24} />}
+                </motion.button>
+            </motion.div>
         </div>
     );
 }

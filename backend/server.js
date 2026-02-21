@@ -57,19 +57,33 @@ app.post('/api/translate', async (req, res) => {
         const sourceObj = isString ? { text: content } : content;
 
         // Translate using Lingo SDK
-        const translatedObj = await engine.localizeObject(sourceObj, {
-            sourceLocale: sourceLang,
-            targetLocale: targetLang,
-        });
+        let translatedObj;
+        try {
+            translatedObj = await engine.localizeObject(sourceObj, {
+                sourceLocale: sourceLang,
+                targetLocale: targetLang,
+            });
+        } catch (sdkError) {
+            const isQuotaError = sdkError.message?.toLowerCase().includes('maximum number') ||
+                sdkError.message?.toLowerCase().includes('free plan reached');
+
+            if (isQuotaError) {
+                console.warn('⚠️ Lingo.dev Translation Quota Reached. Falling back to original content.');
+            } else {
+                console.error('Lingo SDK Error:', sdkError.message);
+            }
+
+            // Fallback to source object
+            translatedObj = sourceObj;
+        }
 
         const translatedContent = isString ? translatedObj.text : translatedObj;
-
         res.json({ translatedContent });
 
     } catch (error) {
-        console.error('Translation error:', error);
+        console.error('Fatal Translation API error:', error);
         res.status(500).json({
-            error: 'Translation failed',
+            error: 'Translation endpoint failed',
             message: error.message
         });
     }

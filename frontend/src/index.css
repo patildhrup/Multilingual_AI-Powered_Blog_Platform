@@ -7,7 +7,7 @@
 
 @layer base {
     body {
-        @apply antialiased text-slate-200 bg-[#0f172a];
+        @apply antialiased text-black bg-[#FAFAF9];
         font-family: 'Inter', sans-serif;
     }
 }
@@ -17,15 +17,15 @@
 }
 
 ::-webkit-scrollbar-track {
-    @apply bg-[#0f172a];
+    @apply bg-[#FAFAF9];
 }
 
 ::-webkit-scrollbar-thumb {
-    @apply bg-[#1e293b] rounded-full border-2 border-[#0f172a];
+    @apply bg-[#e2e8f0] rounded-full border-2 border-[#FAFAF9];
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    @apply bg-[#334155];
+    @apply bg-[#cbd5e1];
 }
 
 /* TipTap Editor Styles */

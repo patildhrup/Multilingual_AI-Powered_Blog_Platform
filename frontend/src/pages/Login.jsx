@@ -5,6 +5,7 @@ import { useLingo, useLingoLocale, setLingoLocale } from "lingo.dev/react/client
 import { LANGUAGES } from '../lingo/dictionary';
 import { Mail, Lock, Loader2, Github, BookOpen, ArrowLeft } from 'lucide-react';
 import { motion } from 'framer-motion';
+import LanguageSelector from '../components/LanguageSelector';
 
 export default function Login() {
     const navigate = useNavigate();
@@ -52,8 +53,8 @@ export default function Login() {
     };
 
     return (
-        <div className="min-h-screen bg-[#0f172a] text-[#f8fafc] font-sans flex flex-col">
-            <nav className="border-b border-[#1e293b] bg-[#0f172a]/80 backdrop-blur-xl">
+        <div className="min-h-screen bg-[#FAFAF9] text-black font-sans flex flex-col">
+            <nav className="border-b border-slate-200 bg-white/80 backdrop-blur-xl">
                 <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
                     <Link to="/" className="flex items-center gap-3">
                         <div className="w-10 h-10 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg shadow-indigo-500/25">
@@ -61,15 +62,10 @@ export default function Login() {
                         </div>
                         <h1 className="text-2xl font-black bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">Blogy</h1>
                     </Link>
-                    <select
-                        value={locale || 'en'}
-                        onChange={(e) => setLingoLocale(e.target.value)}
-                        className="bg-[#1e293b] border border-[#334155] rounded-xl px-3 py-2 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                    >
-                        {LANGUAGES.map(l => (
-                            <option key={l.code} value={l.code}>{l.nativeName}</option>
-                        ))}
-                    </select>
+                    <LanguageSelector
+                        currentLocale={locale}
+                        className="w-40"
+                    />
                 </div>
             </nav>
 
@@ -80,41 +76,41 @@ export default function Login() {
                     transition={{ duration: 0.5 }}
                     className="w-full max-w-md"
                 >
-                    <Link to="/" className="inline-flex items-center gap-2 text-[#94a3b8] hover:text-white mb-8 transition-colors">
+                    <Link to="/" className="inline-flex items-center gap-2 text-black/40 hover:text-black mb-8 transition-colors font-bold uppercase tracking-widest text-xs">
                         <ArrowLeft size={18} />
-                        <span className="text-sm font-medium">{t("editor.back")}</span>
+                        <span>{t("editor.back")}</span>
                     </Link>
 
-                    <div className="bg-[#1e293b] border border-[#334155] rounded-3xl p-8 shadow-2xl">
-                        <h2 className="text-3xl font-black mb-2">{t("nav.login")}</h2>
-                        <p className="text-[#94a3b8] mb-8">Sign in to access your dashboard.</p>
+                    <div className="bg-white border border-slate-200 rounded-[2.5rem] p-8 shadow-2xl shadow-slate-200/50">
+                        <h2 className="text-3xl font-black mb-2 text-black">{t("nav.login")}</h2>
+                        <p className="text-black/50 mb-8 font-medium">Sign in to access your dashboard.</p>
 
                         <form onSubmit={handleSubmit} className="space-y-4">
                             <div className="space-y-2">
-                                <label className="text-sm font-bold text-[#94a3b8] ml-1">Email</label>
+                                <label className="text-xs font-black text-black/40 ml-1 uppercase tracking-widest">Email</label>
                                 <div className="relative">
-                                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-[#475569]" size={20} />
+                                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-black/20" size={20} />
                                     <input
                                         type="email"
                                         required
                                         value={email}
                                         onChange={(e) => setEmail(e.target.value)}
-                                        className="w-full bg-[#0f172a] border border-[#334155] rounded-2xl py-3 pl-12 pr-4 outline-none focus:ring-2 focus:ring-indigo-500 transition-all font-medium"
+                                        className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-3 pl-12 pr-4 outline-none focus:ring-2 focus:ring-indigo-600 transition-all font-medium text-black placeholder-black/20"
                                         placeholder="name@example.com"
                                     />
                                 </div>
                             </div>
 
                             <div className="space-y-2">
-                                <label className="text-sm font-bold text-[#94a3b8] ml-1">Password</label>
+                                <label className="text-xs font-black text-black/40 ml-1 uppercase tracking-widest">Password</label>
                                 <div className="relative">
-                                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-[#475569]" size={20} />
+                                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-black/20" size={20} />
                                     <input
                                         type="password"
                                         required
                                         value={password}
                                         onChange={(e) => setPassword(e.target.value)}
-                                        className="w-full bg-[#0f172a] border border-[#334155] rounded-2xl py-3 pl-12 pr-4 outline-none focus:ring-2 focus:ring-indigo-500 transition-all font-medium"
+                                        className="w-full bg-slate-50 border border-slate-100 rounded-2xl py-3 pl-12 pr-4 outline-none focus:ring-2 focus:ring-indigo-600 transition-all font-medium text-black placeholder-black/20"
                                         placeholder="••••••••"
                                     />
                                 </div>
@@ -127,7 +123,7 @@ export default function Login() {
                             <button
                                 type="submit"
                                 disabled={loading}
-                                className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 rounded-2xl transition-all flex items-center justify-center gap-2"
+                                className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-black py-4 rounded-2xl transition-all flex items-center justify-center gap-2 shadow-xl shadow-indigo-500/30 uppercase tracking-widest text-sm"
                             >
                                 {loading ? <Loader2 className="animate-spin" size={20} /> : t("nav.login")}
                             </button>
@@ -135,10 +131,10 @@ export default function Login() {
 
                         <div className="relative my-8">
                             <div className="absolute inset-0 flex items-center">
-                                <div className="w-full border-t border-[#334155]"></div>
+                                <div className="w-full border-t border-slate-100"></div>
                             </div>
-                            <div className="relative flex justify-center text-sm">
-                                <span className="px-4 bg-[#1e293b] text-[#64748b] font-bold">OR</span>
+                            <div className="relative flex justify-center text-[10px] font-black tracking-widest">
+                                <span className="px-4 bg-white text-black/20">OR</span>
                             </div>
                         </div>
 
@@ -146,7 +142,7 @@ export default function Login() {
                             <button
                                 onClick={() => handleOAuth('google')}
                                 disabled={loading}
-                                className="w-full bg-white hover:bg-gray-50 text-gray-900 font-bold py-4 rounded-2xl transition-all flex items-center justify-center gap-3 border border-[#334155] disabled:opacity-50"
+                                className="w-full bg-white hover:bg-slate-50 text-black font-black py-4 rounded-2xl transition-all flex items-center justify-center gap-3 border border-slate-200 disabled:opacity-50 shadow-sm uppercase tracking-widest text-xs"
                             >
                                 <svg className="w-5 h-5" viewBox="0 0 24 24">
                                     <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
@@ -159,17 +155,17 @@ export default function Login() {
                             <button
                                 onClick={() => handleOAuth('github')}
                                 disabled={loading}
-                                className="w-full bg-[#0f172a] hover:bg-[#1e293b] text-white font-bold py-4 rounded-2xl transition-all flex items-center justify-center gap-3 border border-[#334155] disabled:opacity-50"
+                                className="w-full bg-black hover:bg-black/90 text-white font-black py-4 rounded-2xl transition-all flex items-center justify-center gap-3 border border-black disabled:opacity-50 shadow-xl shadow-black/10 uppercase tracking-widest text-xs"
                             >
                                 <Github size={20} />
                                 Continue with GitHub
                             </button>
                         </div>
 
-                        <div className="mt-8 text-center text-[#94a3b8]">
-                            <p>
+                        <div className="mt-8 text-center text-black/40">
+                            <p className="text-sm font-medium">
                                 Don't have an account?{' '}
-                                <Link to="/signup" className="text-indigo-400 font-bold hover:underline">
+                                <Link to="/signup" className="text-indigo-600 font-black hover:underline uppercase tracking-widest text-xs">
                                     {t("nav.signup")}
                                 </Link>
                             </p>

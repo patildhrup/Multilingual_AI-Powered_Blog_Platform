@@ -231,18 +231,21 @@ export default function PostDetails() {
         return (match && match[2].length === 11) ? match[2] : null;
     };
 
-    if (loading) return <div className="min-h-screen bg-[#0f172a] flex items-center justify-center text-white">Loading...</div>;
+    if (loading) return <div className="min-h-screen bg-[#FAFAF9] flex items-center justify-center text-slate-900">Loading...</div>;
 
     return (
-        <div className="min-h-screen bg-[#0f172a] text-[#f8fafc] font-sans pb-20">
+        <div className="min-h-screen bg-[#FAFAF9] text-slate-900 font-sans pb-20">
             {/* Nav */}
-            <nav className="sticky top-0 z-50 bg-[#0f172a]/90 backdrop-blur-md border-b border-[#1e293b]">
+            <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-200">
                 <div className="max-w-4xl mx-auto px-6 py-4 flex justify-between items-center">
-                    <button onClick={() => navigate('/')} className="text-[#94a3b8] hover:text-white flex items-center gap-2">
+                    <button onClick={() => navigate('/')} className="text-black/50 hover:text-indigo-600 flex items-center gap-2 transition-colors font-medium">
                         <ArrowLeft size={20} />
                         Back
                     </button>
                     <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-4">
+                            <LanguageSelector currentLocale={currentLocale} className="w-40" />
+                        </div>
                         <select
                             value={currentLocale || ""}
                             onChange={(e) => setLocale(e.target.value)}
@@ -257,10 +260,10 @@ export default function PostDetails() {
 
                         {user ? (
                             <div className="flex items-center gap-4">
-                                <span className="text-sm font-bold text-[#94a3b8] hidden md:block">{user.email}</span>
+                                <span className="text-sm font-bold text-black/40 hidden md:block">{user.email}</span>
                                 <button
                                     onClick={signOut}
-                                    className="p-2 bg-[#1e293b] hover:bg-red-500/10 hover:text-red-400 text-[#94a3b8] rounded-xl transition-all border border-[#334155]"
+                                    className="p-2 bg-white hover:bg-red-50 text-slate-400 hover:text-red-500 rounded-xl transition-all border border-slate-200 shadow-sm"
                                     title="Sign Out"
                                 >
                                     <LogOut size={20} />
@@ -283,27 +286,27 @@ export default function PostDetails() {
 
 
             <main className="max-w-3xl mx-auto px-6 py-16">
-                <article className="prose prose-invert prose-indigo max-w-none">
+                <article className="prose prose-slate prose-indigo max-w-none">
                     <div className="flex items-center gap-4 mb-8">
-                        <span className="bg-indigo-500/20 text-indigo-400 px-3 py-1 rounded-full text-sm font-bold uppercase">
+                        <span className="bg-indigo-50 text-indigo-600 px-3 py-1 rounded-full text-sm font-bold uppercase border border-indigo-100 shadow-sm">
                             {post.base_lang} → {currentLocale}
                         </span>
-                        {translating && <span className="flex items-center gap-2 text-indigo-400 text-sm animate-pulse"><Globe size={14} /> Translating...</span>}
+                        {translating && <span className="flex items-center gap-2 text-indigo-500 text-sm animate-pulse font-medium"><Globe size={14} /> Translating...</span>}
                     </div>
 
-                    <h1 className="text-4xl md:text-6xl font-black mb-10 leading-tight">
+                    <h1 className="text-4xl md:text-6xl font-black mb-10 leading-tight text-slate-900">
                         {translatedPost.title}
                     </h1>
 
-                    <div className="flex items-center gap-3 mb-12 py-6 border-y border-[#1e293b]">
-                        <div className="w-12 h-12 bg-indigo-600 rounded-full flex items-center justify-center font-bold text-xl">A</div>
+                    <div className="flex items-center gap-3 mb-12 py-6 border-y border-slate-200">
+                        <div className="w-12 h-12 bg-indigo-600 rounded-full flex items-center justify-center font-bold text-xl text-white shadow-lg">A</div>
                         <div>
-                            <p className="font-bold text-lg">Author Name</p>
-                            <p className="text-[#64748b] text-sm">{new Date(post.created_at).toLocaleDateString()} • 5 min read</p>
+                            <p className="font-bold text-lg text-black">Author Name</p>
+                            <p className="text-black/50 text-sm font-medium">{new Date(post.created_at).toLocaleDateString()} • 5 min read</p>
                         </div>
                     </div>
 
-                    <div className="text-xl md:text-2xl leading-relaxed text-[#cbd5e1] whitespace-pre-wrap mb-12">
+                    <div className="text-xl md:text-2xl leading-relaxed text-black/80 whitespace-pre-wrap mb-12">
                         {translatedPost.content}
                     </div>
 
@@ -324,7 +327,7 @@ export default function PostDetails() {
                                             key={idx}
                                             initial={{ opacity: 0, scale: 0.95 }}
                                             animate={{ opacity: 1, scale: 1 }}
-                                            className="bg-[#1e293b]/50 border border-[#334155] rounded-[2rem] overflow-hidden hover:border-indigo-500/30 transition-all group/card shadow-xl"
+                                            className="bg-white border border-slate-200 rounded-[2rem] overflow-hidden hover:border-indigo-400 transition-all group/card shadow-lg"
                                         >
                                             {/* Photo UI */}
                                             {attach.type === 'photo' && (
@@ -338,9 +341,9 @@ export default function PostDetails() {
                                                             e.target.src = 'https://via.placeholder.com/800x450?text=Image+Not+Found';
                                                         }}
                                                     />
-                                                    <div className="absolute inset-0 bg-gradient-to-t from-[#0f172a] via-transparent to-transparent opacity-60"></div>
+                                                    <div className="absolute inset-0 bg-gradient-to-t from-slate-900/60 via-transparent to-transparent"></div>
                                                     <div className="absolute bottom-4 left-6 flex items-center gap-2">
-                                                        <div className="w-8 h-8 bg-indigo-500/20 backdrop-blur-md rounded-lg flex items-center justify-center text-indigo-400 border border-indigo-500/30">
+                                                        <div className="w-8 h-8 bg-white/20 backdrop-blur-md rounded-lg flex items-center justify-center text-white border border-white/30">
                                                             <Image size={16} />
                                                         </div>
                                                         <span className="text-sm font-bold text-white tracking-wide">{attach.name}</span>
@@ -383,18 +386,18 @@ export default function PostDetails() {
                                             {
                                                 attach.type === 'link' && !ytId && (
                                                     <div
-                                                        className={`p-6 flex items-start gap-4 transition-all ${isDocLink ? 'cursor-pointer hover:bg-indigo-500/5' : ''}`}
+                                                        className={`p-6 flex items-start gap-4 transition-all ${isDocLink ? 'cursor-pointer hover:bg-slate-50' : ''}`}
                                                         onClick={() => isDocLink && handleReadDocument(attach)}
                                                     >
-                                                        <div className={`w-16 h-16 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-lg border ${isDocLink ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 'bg-blue-500/10 text-blue-400 border-blue-500/20'
+                                                        <div className={`w-16 h-16 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-sm border ${isDocLink ? 'bg-emerald-50 text-emerald-600 border-emerald-100' : 'bg-blue-50 text-blue-600 border-blue-100'
                                                             }`}>
                                                             {isDocLink ? <FileText size={32} /> : <Link size={32} />}
                                                         </div>
                                                         <div className="flex-1 min-w-0">
-                                                            <h5 className="font-bold text-xl mb-1 truncate text-white">{attach.name}</h5>
-                                                            <p className={`text-sm break-all mb-2 ${isDocLink ? 'text-emerald-400/70' : 'text-[#64748b]'}`}>{attach.url}</p>
+                                                            <h5 className="font-bold text-xl mb-1 truncate text-slate-900">{attach.name}</h5>
+                                                            <p className={`text-sm break-all mb-2 ${isDocLink ? 'text-emerald-600/70' : 'text-slate-500'}`}>{attach.url}</p>
                                                             {isDocLink && (
-                                                                <span className="text-[10px] bg-indigo-500/20 text-indigo-400 px-2 py-0.5 rounded-md font-black uppercase tracking-[0.1em] flex items-center gap-1 w-fit">
+                                                                <span className="text-[10px] bg-indigo-50 text-indigo-600 px-2 py-0.5 rounded-md font-black uppercase tracking-[0.1em] flex items-center gap-1 w-fit border border-indigo-100">
                                                                     <BookOpen size={10} /> Read Available
                                                                 </span>
                                                             )}
@@ -408,15 +411,15 @@ export default function PostDetails() {
                                                 attach.type === 'document' && (
                                                     <div className="flex flex-col">
                                                         <div
-                                                            className="p-6 flex flex-col md:flex-row items-center md:items-start gap-6 cursor-pointer hover:bg-indigo-500/5 transition-all"
+                                                            className="p-6 flex flex-col md:flex-row items-center md:items-start gap-6 cursor-pointer hover:bg-slate-50 transition-all"
                                                             onClick={() => handleReadDocument(attach)}
                                                         >
-                                                            <div className="w-16 h-16 bg-emerald-500/10 rounded-2xl flex items-center justify-center text-emerald-400 flex-shrink-0 shadow-lg border border-emerald-500/20">
+                                                            <div className="w-16 h-16 bg-emerald-50 rounded-2xl flex items-center justify-center text-emerald-600 flex-shrink-0 shadow-sm border border-emerald-100">
                                                                 <FileText size={32} />
                                                             </div>
                                                             <div className="flex-1 min-w-0 text-center md:text-left">
-                                                                <h5 className="font-bold text-xl mb-1 truncate text-white">{attach.name}</h5>
-                                                                <p className="text-xs text-[#64748b] uppercase tracking-widest font-black mb-4">Document Asset</p>
+                                                                <h5 className="font-bold text-xl mb-1 truncate text-slate-900">{attach.name}</h5>
+                                                                <p className="text-xs text-slate-500 uppercase tracking-widest font-black mb-4">Document Asset</p>
 
                                                                 <div className="flex flex-wrap items-center justify-center md:justify-start gap-3">
                                                                     <button
@@ -424,7 +427,7 @@ export default function PostDetails() {
                                                                             e.stopPropagation();
                                                                             handleReadDocument(attach);
                                                                         }}
-                                                                        className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-xl font-bold transition-all shadow-lg shadow-indigo-500/20"
+                                                                        className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2.5 rounded-xl font-bold transition-all shadow-md"
                                                                     >
                                                                         <BookOpen size={18} />
                                                                         Read Document
@@ -435,7 +438,7 @@ export default function PostDetails() {
                                                                         target="_blank"
                                                                         rel="noopener noreferrer"
                                                                         onClick={(e) => e.stopPropagation()}
-                                                                        className="flex items-center gap-2 bg-[#0f172a] hover:bg-[#1e293b] text-white px-5 py-2.5 rounded-xl font-bold transition-all border border-[#334155]"
+                                                                        className="flex items-center gap-2 bg-white hover:bg-slate-50 text-slate-700 px-5 py-2.5 rounded-xl font-bold transition-all border border-slate-200 shadow-sm"
                                                                     >
                                                                         <Download size={18} />
                                                                         Download
@@ -444,7 +447,7 @@ export default function PostDetails() {
                                                             </div>
                                                         </div>
                                                         {attach.url.toLowerCase().endsWith('.pdf') && (
-                                                            <div className="mx-6 mb-6 h-[500px] border border-[#334155] rounded-3xl overflow-hidden bg-white shadow-2xl">
+                                                            <div className="mx-6 mb-6 h-[500px] border border-slate-200 rounded-3xl overflow-hidden bg-white shadow-inner">
                                                                 <iframe
                                                                     src={`${attach.url}#toolbar=0`}
                                                                     className="w-full h-full"
@@ -462,9 +465,9 @@ export default function PostDetails() {
                                                 {(attach.type === 'document' || attach.type === 'link') && (
                                                     <div className="mt-2">
                                                         {attachmentSummaries[attach.url] ? (
-                                                            <div className="bg-[#0f172a] p-4 rounded-2xl border border-indigo-500/20 relative group/summary">
+                                                            <div className="bg-slate-50 p-4 rounded-2xl border border-indigo-100 relative group/summary shadow-sm">
                                                                 <div className="flex items-center justify-between mb-2">
-                                                                    <span className="text-[10px] font-black text-indigo-400 uppercase tracking-widest flex items-center gap-1">
+                                                                    <span className="text-[10px] font-black text-indigo-600 uppercase tracking-widest flex items-center gap-1">
                                                                         <Sparkles size={10} /> AI Summary
                                                                     </span>
                                                                     <button
@@ -473,12 +476,12 @@ export default function PostDetails() {
                                                                             delete next[attach.url];
                                                                             return next;
                                                                         })}
-                                                                        className="text-[#475569] hover:text-white transition-colors"
+                                                                        className="text-slate-400 hover:text-slate-600 transition-colors"
                                                                     >
                                                                         <X size={14} />
                                                                     </button>
                                                                 </div>
-                                                                <p className="text-[#94a3b8] text-sm leading-relaxed italic">
+                                                                <p className="text-slate-600 text-sm leading-relaxed italic">
                                                                     {attachmentSummaries[attach.url]}
                                                                 </p>
                                                             </div>
@@ -486,7 +489,7 @@ export default function PostDetails() {
                                                             <button
                                                                 onClick={() => handleAttachmentSummary(attach)}
                                                                 disabled={summarizingAttachment[attach.url]}
-                                                                className="w-full flex items-center justify-center gap-3 py-3 bg-indigo-600/10 hover:bg-indigo-600/20 text-indigo-400 rounded-2xl text-sm font-bold transition-all border border-indigo-500/20 disabled:opacity-50"
+                                                                className="w-full flex items-center justify-center gap-3 py-3 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 rounded-2xl text-sm font-bold transition-all border border-indigo-100 disabled:opacity-50"
                                                             >
                                                                 {summarizingAttachment[attach.url] ? (
                                                                     <Loader2 size={16} className="animate-spin" />
@@ -499,16 +502,16 @@ export default function PostDetails() {
                                                     </div>
                                                 )}
 
-                                                <div className="flex items-center justify-between border-t border-[#334155] pt-4">
+                                                <div className="flex items-center justify-between border-t border-slate-100 pt-4">
                                                     <div className="flex items-center gap-2">
                                                         <div className={`w-2 h-2 rounded-full ${attach.type === 'photo' ? 'bg-pink-400' : attach.type === 'video' ? 'bg-purple-400' : attach.type === 'link' ? 'bg-blue-400' : 'bg-emerald-400'}`} />
-                                                        <span className="text-[10px] text-[#64748b] uppercase font-black tracking-widest">{attach.type}</span>
+                                                        <span className="text-[10px] text-slate-400 uppercase font-black tracking-widest">{attach.type}</span>
                                                     </div>
                                                     <a
                                                         href={attach.url}
                                                         target="_blank"
                                                         rel="noopener noreferrer"
-                                                        className="flex items-center gap-2 bg-[#0f172a] hover:bg-indigo-600 text-white px-4 py-2 rounded-xl text-xs font-bold transition-all border border-[#334155] hover:border-indigo-400 shadow-lg"
+                                                        className="flex items-center gap-2 bg-slate-50 hover:bg-indigo-600 text-slate-600 hover:text-white px-4 py-2 rounded-xl text-xs font-bold transition-all border border-slate-200 hover:border-indigo-400 shadow-sm"
                                                     >
                                                         <Globe size={14} />
                                                         View Original
@@ -523,16 +526,16 @@ export default function PostDetails() {
                     )}
 
                     {/* AI Post Summary Section */}
-                    <div className="mt-12 p-6 rounded-2xl bg-white/5 border border-white/10">
+                    <div className="mt-12 p-6 rounded-2xl bg-indigo-50 border border-indigo-100 shadow-sm">
                         <div className="flex items-center justify-between mb-4">
-                            <h4 className="text-lg font-bold flex items-center gap-2">
-                                <Sparkles className="text-indigo-400" size={18} />
+                            <h4 className="text-lg font-bold flex items-center gap-2 text-slate-800">
+                                <Sparkles className="text-indigo-600" size={18} />
                                 AI Post Summary
                             </h4>
                             <button
                                 onClick={handleSummarizePost}
                                 disabled={summarizingPost}
-                                className="text-sm font-bold text-indigo-400 hover:text-indigo-300 transition-colors"
+                                className="text-sm font-bold text-indigo-600 hover:text-indigo-700 transition-colors"
                             >
                                 {summarizingPost ? 'Summarizing...' : 'Generate Summary'}
                             </button>
@@ -542,12 +545,12 @@ export default function PostDetails() {
                                 <motion.p
                                     initial={{ opacity: 0 }}
                                     animate={{ opacity: 1 }}
-                                    className="text-[#94a3b8] italic leading-relaxed"
+                                    className="text-black/70 italic leading-relaxed"
                                 >
                                     {postSummary}
                                 </motion.p>
                             ) : (
-                                <p className="text-[#475569] text-sm italic">
+                                <p className="text-black/40 text-sm italic">
                                     Click generate for an AI-powered overview of this post.
                                 </p>
                             )}
@@ -556,20 +559,20 @@ export default function PostDetails() {
                 </article >
 
                 {/* AI Feedback Section */}
-                < section className="mt-20 p-8 rounded-3xl bg-indigo-600/10 border border-indigo-500/20 relative overflow-hidden" >
-                    <div className="absolute top-0 right-0 p-4 opacity-10">
-                        <Sparkles size={100} className="text-indigo-400" />
+                < section className="mt-20 p-8 rounded-3xl bg-indigo-50 border border-indigo-100 relative overflow-hidden shadow-sm" >
+                    <div className="absolute top-0 right-0 p-4 opacity-5">
+                        <Sparkles size={100} className="text-indigo-600" />
                     </div>
 
                     <div className="flex items-center justify-between mb-6">
-                        <h3 className="text-2xl font-bold flex items-center gap-3">
-                            <Sparkles className="text-indigo-400" />
+                        <h3 className="text-2xl font-bold flex items-center gap-3 text-slate-900">
+                            <Sparkles className="text-indigo-600" />
                             {t("ai.feedbackTitle")}
                         </h3>
                         <button
                             onClick={handleSummarizeFeedback}
                             disabled={summarizing || comments.length === 0}
-                            className="bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white px-6 py-2 rounded-xl font-bold flex items-center gap-2 transition-all"
+                            className="bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white px-6 py-2 rounded-xl font-bold flex items-center gap-2 transition-all shadow-md"
                         >
                             {summarizing ? 'Summarizing...' : 'Summarize All Feedback'}
                         </button>
@@ -580,29 +583,29 @@ export default function PostDetails() {
                             <motion.div
                                 initial={{ opacity: 0, y: 10 }}
                                 animate={{ opacity: 1, y: 0 }}
-                                className="bg-[#0f172a]/50 p-6 rounded-2xl text-indigo-100 italic leading-relaxed"
+                                className="bg-white/80 backdrop-blur-sm p-6 rounded-2xl text-black/70 italic leading-relaxed shadow-sm border border-indigo-50"
                             >
                                 "{feedbackSummary}"
                             </motion.div>
                         )}
                     </AnimatePresence>
-                    {!feedbackSummary && <p className="text-[#94a3b8] italic">Click summarize to get an AI-powered overview of what readers think in {currentLocale}.</p>}
+                    {!feedbackSummary && <p className="text-black/40 italic">Click summarize to get an AI-powered overview of what readers think in {currentLocale}.</p>}
                 </section >
 
                 {/* Comments Section */}
                 < section className="mt-20" >
-                    <h3 className="text-3xl font-bold mb-10 flex items-center gap-3">
-                        <MessageSquare className="text-indigo-400" />
+                    <h3 className="text-3xl font-bold mb-10 flex items-center gap-3 text-slate-900">
+                        <MessageSquare className="text-indigo-600" />
                         Responses ({comments.length})
                     </h3>
 
-                    <div className="bg-[#1e293b] p-8 rounded-3xl border border-[#334155] mb-12">
+                    <div className="bg-white p-8 rounded-3xl border border-slate-200 mb-12 shadow-sm">
                         {!user && (
-                            <div className="mb-6 p-4 bg-indigo-500/10 border border-indigo-500/20 rounded-2xl flex items-center justify-between">
-                                <p className="text-indigo-200 text-sm font-medium">Please sign in to join the conversation.</p>
+                            <div className="mb-6 p-4 bg-indigo-50 border border-indigo-100 rounded-2xl flex items-center justify-between">
+                                <p className="text-indigo-700 text-sm font-medium">Please sign in to join the conversation.</p>
                                 <button
                                     onClick={() => setIsAuthModalOpen(true)}
-                                    className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-1.5 rounded-xl font-bold text-xs transition-all"
+                                    className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-1.5 rounded-xl font-bold text-xs transition-all shadow-sm"
                                 >
                                     Sign In Now
                                 </button>
@@ -615,16 +618,16 @@ export default function PostDetails() {
                                     value={newComment}
                                     onChange={(e) => setNewComment(e.target.value)}
                                     disabled={!user}
-                                    className="bg-[#0f172a] border border-[#334155] rounded-2xl px-6 py-4 w-full h-32 outline-none focus:ring-2 focus:ring-indigo-500 resize-none transition-all placeholder-[#475569] font-medium disabled:opacity-50"
+                                    className="bg-slate-50 border border-slate-200 rounded-2xl px-6 py-4 w-full h-32 outline-none focus:ring-2 focus:ring-indigo-500/50 resize-none transition-all placeholder-black/30 font-medium disabled:opacity-50 text-black"
                                 />
                                 <div className="absolute bottom-4 right-4 flex items-center gap-2">
-                                    <span className="text-[10px] font-bold text-[#475569] uppercase tracking-wider">
+                                    <span className="text-[10px] font-bold text-black/30 uppercase tracking-wider">
                                         Posting in {currentLocale}
                                     </span>
                                 </div>
                             </div>
                             <div className="flex items-center justify-between">
-                                <div className="text-[#64748b] text-xs flex items-center gap-2">
+                                <div className="text-black/40 text-xs flex items-center gap-2 font-medium">
                                     <Globe size={14} />
                                     AI-powered translation enabled
                                 </div>
@@ -663,23 +666,23 @@ export default function PostDetails() {
                             initial={{ opacity: 0, scale: 0.9, y: 20 }}
                             animate={{ opacity: 1, scale: 1, y: 0 }}
                             exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                            className="relative w-full max-w-5xl h-full bg-[#0f172a] border border-[#1e293b] rounded-[2rem] shadow-2xl overflow-hidden flex flex-col"
+                            className="relative w-full max-w-5xl h-full bg-white border border-slate-200 rounded-[2rem] shadow-2xl overflow-hidden flex flex-col"
                         >
                             {/* Modal Header */}
-                            <div className="p-6 border-b border-[#1e293b] flex items-center justify-between gap-4">
+                            <div className="p-6 border-b border-slate-100 flex items-center justify-between gap-4">
                                 <div className="flex items-center gap-4 min-w-0">
-                                    <div className="w-10 h-10 bg-indigo-500/10 rounded-xl flex items-center justify-center text-indigo-400 flex-shrink-0">
+                                    <div className="w-10 h-10 bg-indigo-50 rounded-xl flex items-center justify-center text-indigo-600 flex-shrink-0 border border-indigo-100">
                                         <BookOpen size={20} />
                                     </div>
                                     <div className="min-w-0">
-                                        <h3 className="font-bold text-lg truncate text-white">{readingTitle}</h3>
-                                        <p className="text-xs text-[#64748b] font-medium tracking-tight">Interactive Document Reader</p>
+                                        <h3 className="font-bold text-lg truncate text-black">{readingTitle}</h3>
+                                        <p className="text-xs text-black/40 font-bold tracking-tight uppercase">Interactive Document Reader</p>
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-2">
                                     <button
                                         onClick={() => setReaderOpen(false)}
-                                        className="p-2.5 bg-[#1e293b] hover:bg-[#334155] text-[#94a3b8] hover:text-white rounded-xl transition-all border border-[#334155]"
+                                        className="p-2.5 bg-white hover:bg-slate-50 text-black/30 hover:text-black/60 rounded-xl transition-all border border-slate-200 shadow-sm"
                                     >
                                         <X size={20} />
                                     </button>
@@ -697,24 +700,24 @@ export default function PostDetails() {
                                             </div>
                                         </div>
                                         <div className="text-center">
-                                            <p className="text-xl font-bold text-white mb-1">Extracting Knowledge</p>
-                                            <p className="text-[#64748b]">Please wait while we process the document contents...</p>
+                                            <p className="text-xl font-bold text-slate-900 mb-1">Extracting Knowledge</p>
+                                            <p className="text-slate-500">Please wait while we process the document contents...</p>
                                         </div>
                                     </div>
                                 ) : (
                                     <div className="max-w-3xl mx-auto">
-                                        <article className="prose prose-invert prose-indigo max-w-none">
-                                            <div className="mb-8 p-6 bg-indigo-500/5 border border-indigo-500/10 rounded-2xl flex items-start gap-4">
-                                                <div className="p-2 bg-indigo-500/10 rounded-lg text-indigo-400 mt-1">
+                                        <article className="prose prose-slate prose-indigo max-w-none">
+                                            <div className="mb-8 p-6 bg-indigo-50 border border-indigo-100 rounded-2xl flex items-start gap-4 shadow-sm">
+                                                <div className="p-2 bg-white rounded-lg text-indigo-600 mt-1 border border-indigo-50 shadow-sm">
                                                     <Sparkles size={16} />
                                                 </div>
                                                 <div>
-                                                    <p className="text-sm text-indigo-100/80 italic leading-relaxed">
+                                                    <p className="text-sm text-indigo-900 italic leading-relaxed">
                                                         This content was extracted from the document using our AI-powered engine. Formatting may vary from the original file.
                                                     </p>
                                                 </div>
                                             </div>
-                                            <div className="whitespace-pre-wrap text-lg text-indigo-50 leading-relaxed font-serif tracking-tight">
+                                            <div className="whitespace-pre-wrap text-lg text-black/80 leading-relaxed font-serif tracking-tight">
                                                 {readingContent}
                                             </div>
                                         </article>
@@ -740,12 +743,12 @@ export default function PostDetails() {
                     background: transparent;
                 }
                 .custom-scrollbar::-webkit-scrollbar-thumb {
-                    background: #1e293b;
+                    background: #e2e8f0;
                     border-radius: 20px;
-                    border: 2px solid #0f172a;
+                    border: 2px solid white;
                 }
                 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-                    background: #334155;
+                    background: #cbd5e1;
                 }
             ` }} />
             <Grammy mode="viewer" baseLang={currentLocale} />
@@ -776,19 +779,19 @@ function CommentItem({ comment, targetLocale }) {
         <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="bg-[#1e293b] p-6 rounded-3xl border border-[#334155] transition-all hover:border-indigo-500/30 group"
+            className="bg-white p-6 rounded-3xl border border-slate-200 transition-all hover:border-indigo-300 group shadow-sm"
         >
             <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-indigo-500/10 rounded-2xl flex items-center justify-center border border-indigo-500/20 group-hover:bg-indigo-500/20 transition-all">
-                        <User size={20} className="text-indigo-400" />
+                    <div className="w-10 h-10 bg-indigo-50 rounded-2xl flex items-center justify-center border border-indigo-100 group-hover:bg-indigo-100 transition-all shadow-sm">
+                        <User size={20} className="text-indigo-600" />
                     </div>
                     <div>
-                        <p className="font-bold text-[#f8fafc]">User {comment.user_id?.slice(0, 5) || 'Anonymous'}</p>
-                        <p className="text-[#64748b] text-xs font-medium">{new Date(comment.created_at).toLocaleDateString()}</p>
+                        <p className="font-bold text-black">User {comment.user_id?.slice(0, 5) || 'Anonymous'}</p>
+                        <p className="text-black/40 text-xs font-bold">{new Date(comment.created_at).toLocaleDateString()}</p>
                     </div>
                 </div>
-                <div className="bg-[#0f172a] px-3 py-1 rounded-full border border-[#334155] text-[10px] font-black uppercase text-[#475569] tracking-wider">
+                <div className="bg-slate-50 px-3 py-1 rounded-full border border-slate-100 text-[10px] font-black uppercase text-black/30 tracking-wider shadow-sm">
                     {comment.original_language}
                 </div>
             </div>

@@ -93,8 +93,8 @@ export default function BlogLanding() {
     }, [posts, locale]);
 
     return (
-        <div className="min-h-screen bg-[#0f172a] text-[#f8fafc] font-sans">
-            <nav className="sticky top-0 z-50 bg-[#0f172a]/80 backdrop-blur-md border-b border-[#1e293b]">
+        <div className="min-h-screen bg-[#FAFAF9] text-black font-sans">
+            <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-md border-b border-slate-200">
                 <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
                     <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate('/')}>
                         <div className="w-10 h-10 bg-indigo-600 rounded-lg flex items-center justify-center">
@@ -120,12 +120,12 @@ export default function BlogLanding() {
                                     <PenTool size={18} />
                                     {t("nav.write")}
                                 </button>
-                                <div className="flex items-center gap-3 bg-[#1e293b] px-4 py-2 rounded-lg border border-[#334155]">
-                                    <User size={18} className="text-indigo-400" />
-                                    <span className="text-sm font-medium hidden md:block">{user.email}</span>
+                                <div className="flex items-center gap-3 bg-white px-4 py-2 rounded-lg border border-slate-200 shadow-sm">
+                                    <User size={18} className="text-indigo-600" />
+                                    <span className="text-sm font-medium hidden md:block text-slate-700">{user.email}</span>
                                     <button
                                         onClick={signOut}
-                                        className="text-[#94a3b8] hover:text-red-400 transition-colors"
+                                        className="text-slate-400 hover:text-red-500 transition-colors"
                                         title="Sign Out"
                                     >
                                         <LogOut size={18} />
@@ -136,7 +136,7 @@ export default function BlogLanding() {
                             <div className="flex items-center gap-3">
                                 <button
                                     onClick={() => setIsAuthModalOpen(true)}
-                                    className="flex items-center gap-2 bg-[#1e293b] hover:bg-[#334155] text-white px-5 py-2 rounded-lg font-semibold transition-all border border-[#334155]"
+                                    className="flex items-center gap-2 bg-white hover:bg-slate-50 text-slate-900 px-5 py-2 rounded-lg font-semibold transition-all border border-slate-200 shadow-sm"
                                 >
                                     <LogIn size={18} />
                                     Sign In
@@ -157,12 +157,12 @@ export default function BlogLanding() {
             <AuthModal isOpen={isAuthModalOpen} onClose={() => setIsAuthModalOpen(false)} />
 
             <header className="py-24 text-center relative overflow-hidden">
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-indigo-600/10 blur-[120px] rounded-full -z-10"></div>
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[400px] bg-indigo-600/5 blur-[120px] rounded-full -z-10"></div>
                 <div className="max-w-4xl mx-auto px-6">
-                    <h2 className="text-5xl md:text-7xl font-extrabold mb-6 tracking-tight leading-tight">
+                    <h2 className="text-5xl md:text-7xl font-extrabold mb-6 tracking-tight leading-tight text-slate-900">
                         {t("hero.title")}
                     </h2>
-                    <p className="text-xl md:text-2xl text-[#94a3b8] mb-10 leading-relaxed font-light">
+                    <p className="text-xl md:text-2xl text-slate-600 mb-10 leading-relaxed font-light">
                         {t("hero.subtitle")}
                     </p>
                 </div>
@@ -173,41 +173,44 @@ export default function BlogLanding() {
                     {loading ? (
                         <div className="col-span-full flex flex-col items-center justify-center py-20 gap-4">
                             <div className="w-12 h-12 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
-                            <p className="text-[#94a3b8] animate-pulse">{t("ui.loading")}</p>
+                            <p className="text-black/30 font-bold animate-pulse uppercase tracking-widest text-xs">{t("ui.loading")}</p>
                         </div>
                     ) : translatedPosts.length > 0 ? (
                         translatedPosts.map(post => (
                             <article
                                 key={post.id}
-                                className="group bg-[#1e293b] p-8 rounded-2xl cursor-pointer transition-all hover:-translate-y-2 border border-[#334155] hover:border-indigo-500/50 hover:shadow-[0_20px_40px_rgba(0,0,0,0.3)]"
+                                className="group relative bg-white p-8 rounded-2xl cursor-pointer transition-all hover:-translate-y-2 border border-slate-200"
                                 onClick={() => navigate(`/post/${post.id}`)}
                             >
-                                <div className="flex items-center gap-2 mb-4">
-                                    <span className="bg-indigo-500/10 text-indigo-400 text-xs font-bold px-2 py-1 rounded uppercase tracking-wider">
-                                        {post.base_lang}
-                                    </span>
-                                    <span className="text-[#64748b] text-sm italic">
-                                        {new Date(post.created_at).toLocaleDateString()}
-                                    </span>
-                                </div>
-                                <h3 className="text-2xl font-bold mb-4 group-hover:text-indigo-400 transition-colors">
-                                    {post.title}
-                                </h3>
-                                <p className="text-[#94a3b8] line-clamp-3 leading-relaxed mb-6">
-                                    {post.content}
-                                </p>
-                                <div className="flex items-center gap-2 text-indigo-400 font-semibold group-hover:gap-3 transition-all">
-                                    <span>{t("post.readMore")}</span>
-                                    <BookOpen size={16} />
+                                <div className="absolute inset-0 bg-gradient-to-br from-purple-400 via-pink-400 via-blue-400 to-teal-400 opacity-0 group-hover:opacity-100 transition-opacity blur-[100px] -z-10 rounded-2xl"></div>
+                                <div className="relative z-10">
+                                    <div className="flex items-center gap-2 mb-4">
+                                        <span className="bg-indigo-50 text-indigo-600 text-xs font-bold px-2 py-1 rounded uppercase tracking-wider">
+                                            {post.base_lang}
+                                        </span>
+                                        <span className="text-black/60 text-sm italic font-medium">
+                                            {new Date(post.created_at).toLocaleDateString()}
+                                        </span>
+                                    </div>
+                                    <h3 className="text-2xl font-bold mb-4 group-hover:text-indigo-700 transition-colors text-slate-900">
+                                        {post.title}
+                                    </h3>
+                                    <p className="text-black/70 line-clamp-3 leading-relaxed mb-6 font-medium">
+                                        {post.content}
+                                    </p>
+                                    <div className="flex items-center gap-2 text-indigo-600 font-semibold group-hover:gap-3 transition-all">
+                                        <span>{t("post.readMore")}</span>
+                                        <BookOpen size={16} />
+                                    </div>
                                 </div>
                             </article>
                         ))
                     ) : (
-                        <div className="col-span-full text-center py-20 bg-[#1e293b]/50 rounded-3xl border border-dashed border-[#334155]">
-                            <p className="text-xl text-[#94a3b8] mb-6">{t("ui.empty")}</p>
+                        <div className="col-span-full text-center py-20 bg-white rounded-3xl border border-dashed border-slate-300 shadow-sm">
+                            <p className="text-xl text-slate-500 mb-6">{t("ui.empty")}</p>
                             <button
                                 onClick={() => navigate('/editor')}
-                                className="bg-[#334155] hover:bg-[#475569] text-white px-8 py-3 rounded-xl font-bold transition-all"
+                                className="bg-slate-100 hover:bg-slate-200 text-slate-800 px-8 py-3 rounded-xl font-bold transition-all"
                             >
                                 {t("ui.createFirst")}
                             </button>
@@ -216,10 +219,10 @@ export default function BlogLanding() {
                 </section>
             </main>
 
-            <footer className="bg-[#020617] py-12 border-t border-[#1e293b]">
+            <footer className="bg-white py-12 border-t border-slate-100">
                 <div className="max-w-7xl mx-auto px-6 text-center">
-                    <p className="text-[#64748b] mb-4">{t("footer.text")}</p>
-                    <div className="flex justify-center gap-4 text-xs font-medium text-[#475569]">
+                    <p className="text-black/50 mb-4 font-medium">{t("footer.text")}</p>
+                    <div className="flex justify-center gap-4 text-[10px] font-black tracking-[0.2em] text-black/20 uppercase">
                         <span>POWERED BY LINGO.DEV</span>
                         <span>•</span>
                         <span>SUPABASE</span>
